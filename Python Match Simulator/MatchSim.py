@@ -1,7 +1,7 @@
 import json
 import numpy
 import math
-
+import random
 
 def read_json_data(json_file):
     # Reads data from json file into an ordered dictionary in python
@@ -18,19 +18,24 @@ def percent_limit(percentage):
     return percentage
 
 
+def check_reliability(robot_dict, robot_type, robot_task):
+    reliability_roll = random.randint(0, 100)
+    task_reliability = robot_dict[robot_type][robot_task]["Reliability"]
+    if reliability_roll < task_reliability:
+        task_success = True
+    else:
+        task_success = False
+        print("Task Failed: %s" % robot_task)
+    return task_success
+
+
 def generate_robot_data(robot_dict, robot_type, robot_task):
     task_cycle_key = robot_dict[robot_type][robot_task]["Cycle"]
     task_cycle_sd_key = robot_dict[robot_type][robot_task]["Cycle_StdDev"]
-    task_reliability = robot_dict[robot_type][robot_task]["Reliability"]
     task_cycle_time = numpy.random.normal(task_cycle_key, task_cycle_sd_key)
+    task_cycle_time = math.ceil(task_cycle_time)
 
-    robot_execution = {
-        "Current Task": robot_task,
-        "Task Cycle": task_cycle_time,
-        "Task Reliability": task_reliability
-    }
-
-    return robot_execution
+    return task_cycle_time
 
 
 def task_selection(robot_dict, robot, robot_type):
@@ -38,13 +43,15 @@ def task_selection(robot_dict, robot, robot_type):
         "Low Painting": robot_dict[robot_type]["Low Painting"]["Priority"],
         "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Priority"],
         "High Painting": robot_dict[robot_type]["High Painting"]["Priority"],
+        "Floor Painting": robot_dict[robot_type]["Floor Painting"]["Priority"],
         "Near Statue": robot_dict[robot_type]["Near Statue"]["Priority"],
-        "Far Statue": robot_dict[robot_type]["Far Statue"]["Priority"],
+        "Far Statue": robot_dict[robot_type]["Far Statue"]["Priority"]
     }
     endgame_priority = {
         "Low Painting": robot_dict[robot_type]["Low Painting"]["Priority"],
         "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Priority"],
         "High Painting": robot_dict[robot_type]["High Painting"]["Priority"],
+        "Floor Painting": robot_dict[robot_type]["High Painting"]["Priority"],
         "Near Statue": robot_dict[robot_type]["Near Statue"]["Priority"],
         "Far Statue": robot_dict[robot_type]["Far Statue"]["Priority"],
         "Chain Pull": robot_dict[robot_type]["Chain Pull"]["Priority"]
@@ -58,6 +65,9 @@ def task_selection(robot_dict, robot, robot_type):
     if high_paintings == 0:
         teleop_priority.pop("High Painting")
         endgame_priority.pop("High Painting")
+    if floor_paintings == 0:
+        teleop_priority.pop("Floor Painting")
+        endgame_priority.pop("Floor Painting")
     if red_near_statues == 0 and robot.startswith("R"):
         teleop_priority.pop("Near Statue")
         endgame_priority.pop("Near Statue")
@@ -70,7 +80,7 @@ def task_selection(robot_dict, robot, robot_type):
     if blue_far_statues == 0 and robot.startswith("B"):
         teleop_priority.pop("Far Statue")
         endgame_priority.pop("Far Statue")
-    task = min(teleop_priority, key=endgame_priority.get)
+    task = min(teleop_priority, key=teleop_priority.get)
     return task
 
 
@@ -78,6 +88,7 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     global low_paintings
     global mid_paintings
     global high_paintings
+    global floor_paintings
     global red_near_statues
     global red_far_statues
     global blue_near_statues
@@ -90,17 +101,24 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     robot_score = 0
 
     if robot_task_end == time_left:
+        task_success = check_reliability(robot_dict, robot_type, robot_task)
         if robot_task == "Low Painting" or robot_task == "Mid Painting" or robot_task == "High Painting":
-            robot_score = painting_score_value
-            paintings_scored += 1
+            if task_success:
+                robot_score = painting_score_value
+                paintings_scored += 1
+            elif not task_success:
+                floor_paintings += 1
         elif robot_task == "Near Statue" or robot_task == "Far Statue":
-            robot_score = statue_score_value
-            statues_scored += 1
+            if task_success:
+                robot_score = statue_score_value
+                statues_scored += 1
+            elif not task_success:
+                robot_task_end -= math.ceil(numpy.random.normal(5, 0.8))
 
     if time_left == auto_length + teleop_length or robot_task_end == time_left:
         robot_task = task_selection(robot_dict, robot, robot_type)
-        robot_execution = generate_robot_data(robot_dict, robot_type, robot_task)
-        robot_task_end = time_left - math.ceil(robot_execution["Task Cycle"])
+        task_cycle_time = generate_robot_data(robot_dict, robot_type, robot_task)
+        robot_task_end = time_left - task_cycle_time
 
         if robot_task == "Low Painting":
             low_paintings -= 1
@@ -108,6 +126,8 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
             mid_paintings -= 1
         elif robot_task == "High Painting":
             high_paintings -= 1
+        elif robot_task == "Floor Painting":
+            floor_paintings -= 1
         elif robot_task == "Near Statue":
             if robot.startswith("R"):
                 red_near_statues -= 1
@@ -118,7 +138,7 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
                 red_far_statues -= 1
             elif robot.startswith("B"):
                 blue_far_statues -= 1
-        print("%s Task: %s - Time (%r)" % (robot, robot_task, math.ceil(robot_execution["Task Cycle"])))
+        print("%s Task: %s - Time (%r)" % (robot, robot_task, task_cycle_time))
     return robot_score, robot_task, robot_task_end
 
 
@@ -208,6 +228,7 @@ blue_far_statues = 2
 low_paintings = 24
 mid_paintings = 8
 high_paintings = 24
+floor_paintings = 0
 painting_score_value = 10
 statue_score_value = 15
 statues_scored = 0

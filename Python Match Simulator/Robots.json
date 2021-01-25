@@ -4,19 +4,25 @@
       "Cycle" : 12,
       "Cycle_StdDev" : 1.2,
       "Reliability": 97,
-      "Priority": 4
+      "Priority": 5
     },
      "Mid Painting" : {
        "Cycle" : 14,
        "Cycle_StdDev" : 1.4,
-       "Reliability": 95,
-       "Priority": 5
+       "Reliability": 97,
+       "Priority": 4
     },
      "High Painting" : {
        "Cycle" : 16,
        "Cycle_StdDev" : 1.6,
-       "Reliability": 93,
-       "Priority": 6
+       "Reliability": 97,
+       "Priority": 7
+    },
+    "Floor Painting": {
+      "Cycle": 12,
+      "Cycle_StdDev": 2.2,
+      "Reliability": 97,
+      "Priority": 6
     },
     "Near Statue" : {
       "Cycle": 15,
