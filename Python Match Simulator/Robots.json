@@ -3,38 +3,50 @@
     "Low Painting" : {
       "Cycle" : 12,
       "Cycle_StdDev" : 1.2,
+      "Auto Reliability": 90,
       "Reliability": 97,
-      "Priority": 5
+      "Auto Priority": 3,
+      "TeleOp Priority": 4,
+      "Endgame Priority": 3
     },
      "Mid Painting" : {
        "Cycle" : 14,
        "Cycle_StdDev" : 1.4,
+       "Auto Reliability": 94,
        "Reliability": 97,
-       "Priority": 4
+       "Auto Priority": 2,
+       "TeleOp Priority": 3,
+       "Endgame Priority": 2
     },
      "High Painting" : {
        "Cycle" : 16,
        "Cycle_StdDev" : 1.6,
+       "Auto Reliability": 90,
        "Reliability": 97,
-       "Priority": 7
+       "Auto Priority": 4,
+       "TeleOp Priority": 6,
+       "Endgame Priority": 5
     },
     "Floor Painting": {
       "Cycle": 12,
       "Cycle_StdDev": 2.2,
       "Reliability": 97,
-      "Priority": 6
+      "TeleOp Priority": 5,
+      "Endgame Priority": 4
     },
     "Near Statue" : {
       "Cycle": 15,
       "Cycle_StdDev": 3,
+      "Auto Reliability": 92,
       "Reliability": 95,
-      "Priority": 2
+      "Auto Priority": 1,
+      "TeleOp Priority": 1
     },
     "Far Statue" : {
       "Cycle": 25,
       "Cycle_StdDev": 5,
-      "Reliability": 93,
-      "Priority": 3
+      "Reliability": 95,
+      "TeleOp Priority": 2
     },
     "Fire System": {
       "Cycle": 3,
@@ -44,8 +56,8 @@
     "Chain Pull": {
       "Cycle": 8,
       "Cycle_StdDev": 1.3,
-      "Reliability": 85,
-      "Priority": 1
+      "Reliability": 92,
+      "Endgame Priority": 1
     }
   }
 }

@@ -38,49 +38,58 @@ def generate_robot_data(robot_dict, robot_type, robot_task):
     return task_cycle_time
 
 
-def task_selection(robot_dict, robot, robot_type):
+def task_selection(robot_dict, robot, robot_type, time_left):
+    auto_priority = {
+        "Low Painting": robot_dict[robot_type]["Low Painting"]["Auto Priority"],
+        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Auto Priority"],
+        "High Painting": robot_dict[robot_type]["High Painting"]["Auto Priority"],
+        "Near Statue": robot_dict[robot_type]["Near Statue"]["Auto Priority"]
+    }
     teleop_priority = {
-        "Low Painting": robot_dict[robot_type]["Low Painting"]["Priority"],
-        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Priority"],
-        "High Painting": robot_dict[robot_type]["High Painting"]["Priority"],
-        "Floor Painting": robot_dict[robot_type]["Floor Painting"]["Priority"],
-        "Near Statue": robot_dict[robot_type]["Near Statue"]["Priority"],
-        "Far Statue": robot_dict[robot_type]["Far Statue"]["Priority"]
+        "Low Painting": robot_dict[robot_type]["Low Painting"]["TeleOp Priority"],
+        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["TeleOp Priority"],
+        "High Painting": robot_dict[robot_type]["High Painting"]["TeleOp Priority"],
+        "Floor Painting": robot_dict[robot_type]["Floor Painting"]["TeleOp Priority"],
+        "Near Statue": robot_dict[robot_type]["Near Statue"]["TeleOp Priority"],
+        "Far Statue": robot_dict[robot_type]["Far Statue"]["TeleOp Priority"]
     }
     endgame_priority = {
-        "Low Painting": robot_dict[robot_type]["Low Painting"]["Priority"],
-        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Priority"],
-        "High Painting": robot_dict[robot_type]["High Painting"]["Priority"],
-        "Floor Painting": robot_dict[robot_type]["High Painting"]["Priority"],
-        "Near Statue": robot_dict[robot_type]["Near Statue"]["Priority"],
-        "Far Statue": robot_dict[robot_type]["Far Statue"]["Priority"],
-        "Chain Pull": robot_dict[robot_type]["Chain Pull"]["Priority"]
+        "Low Painting": robot_dict[robot_type]["Low Painting"]["Endgame Priority"],
+        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Endgame Priority"],
+        "High Painting": robot_dict[robot_type]["High Painting"]["Endgame Priority"],
+        "Floor Painting": robot_dict[robot_type]["High Painting"]["Endgame Priority"],
+        "Chain Pull": robot_dict[robot_type]["Chain Pull"]["Endgame Priority"]
     }
     if low_paintings == 0:
+        auto_priority.pop("Low Painting")
         teleop_priority.pop("Low Painting")
         endgame_priority.pop("Low Painting")
     if mid_paintings == 0:
+        auto_priority.pop("Mid Painting")
         teleop_priority.pop("Mid Painting")
         endgame_priority.pop("Mid Painting")
     if high_paintings == 0:
+        auto_priority.pop("High Painting")
         teleop_priority.pop("High Painting")
         endgame_priority.pop("High Painting")
     if floor_paintings == 0:
         teleop_priority.pop("Floor Painting")
         endgame_priority.pop("Floor Painting")
     if red_near_statues == 0 and robot.startswith("R"):
+        auto_priority.pop("Near Statue")
         teleop_priority.pop("Near Statue")
-        endgame_priority.pop("Near Statue")
     if blue_near_statues == 0 and robot.startswith("B"):
+        auto_priority.pop("Near Statue")
         teleop_priority.pop("Near Statue")
-        endgame_priority.pop("Near Statue")
     if red_far_statues == 0 and robot.startswith("R"):
         teleop_priority.pop("Far Statue")
-        endgame_priority.pop("Far Statue")
     if blue_far_statues == 0 and robot.startswith("B"):
         teleop_priority.pop("Far Statue")
-        endgame_priority.pop("Far Statue")
-    task = min(teleop_priority, key=teleop_priority.get)
+
+    if time_left > teleop_length:
+        task = min(auto_priority, key=auto_priority.get)
+    else:
+        task = min(teleop_priority, key=teleop_priority.get)
     return task
 
 
@@ -95,8 +104,10 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     global blue_far_statues
     global painting_score_value
     global statue_score_value
-    global paintings_scored
-    global statues_scored
+    global auto_paintings_scored
+    global teleop_paintings_scored
+    global auto_statues_scored
+    global teleop_statues_scored
 
     robot_score = 0
 
@@ -104,19 +115,27 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
         task_success = check_reliability(robot_dict, robot_type, robot_task)
         if robot_task == "Low Painting" or robot_task == "Mid Painting" or robot_task == "High Painting":
             if task_success:
-                robot_score = painting_score_value
-                paintings_scored += 1
+                if time_left > teleop_length:
+                    robot_score = auto_painting_score_value
+                    auto_paintings_scored += 1
+                else:
+                    robot_score = painting_score_value
+                    teleop_paintings_scored += 1
             elif not task_success:
                 floor_paintings += 1
         elif robot_task == "Near Statue" or robot_task == "Far Statue":
             if task_success:
-                robot_score = statue_score_value
-                statues_scored += 1
+                if time_left > teleop_length:
+                    robot_score = auto_statue_score_value
+                    auto_statues_scored += 1
+                else:
+                    robot_score = statue_score_value
+                    teleop_statues_scored += 1
             elif not task_success:
                 robot_task_end -= math.ceil(numpy.random.normal(5, 0.8))
 
     if time_left == auto_length + teleop_length or robot_task_end == time_left:
-        robot_task = task_selection(robot_dict, robot, robot_type)
+        robot_task = task_selection(robot_dict, robot, robot_type, time_left)
         task_cycle_time = generate_robot_data(robot_dict, robot_type, robot_task)
         robot_task_end = time_left - task_cycle_time
 
@@ -215,12 +234,15 @@ def generate_match_data():
     print("Blue 1 Score: %d" % blue1_total_score)
     print("Blue 2 Score: %d" % blue2_total_score)
     print("Blue 3 Score: %d" % blue3_total_score)
-    print("Paintings Scored: %d" % paintings_scored)
-    print("Statues Scored: %d" % statues_scored)
+    print("Auto Paintings Scored: %d" % auto_paintings_scored)
+    print("TeleOp Paintings Scored: %d" % teleop_paintings_scored)
+    print("Auto Statues Scored: %d" % auto_statues_scored)
+    print("TeleOp Statues Scored: %d" % teleop_statues_scored)
 
 
 auto_length = 15
 teleop_length = 135
+endgame_length = 30
 red_near_statues = 2
 red_far_statues = 2
 blue_near_statues = 2
@@ -229,9 +251,13 @@ low_paintings = 24
 mid_paintings = 8
 high_paintings = 24
 floor_paintings = 0
+auto_painting_score_value = 20
 painting_score_value = 10
+auto_statue_score_value = 30
 statue_score_value = 15
-statues_scored = 0
-paintings_scored = 0
+auto_statues_scored = 0
+teleop_statues_scored = 0
+auto_paintings_scored = 0
+teleop_paintings_scored = 0
 
 generate_match_data()
