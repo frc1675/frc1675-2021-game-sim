@@ -1,5 +1,5 @@
 {
-  "God Bot" : {
+  "GOD BOT" : {
     "Low Painting" : {
       "Cycle" : 12,
       "Cycle_StdDev" : 1.2,
@@ -43,7 +43,7 @@
     }
   },
 
-  "OK Bot" : {
+  "OK BOT" : {
     "Low Painting" : {
       "Cycle" : 15,
       "Cycle_StdDev" : 1.2,

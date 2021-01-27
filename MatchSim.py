@@ -189,13 +189,13 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     red_total_score = red1_total_score + red2_total_score + red3_total_score
     blue_total_score = blue1_total_score + blue2_total_score + blue3_total_score
     if red_total_score > blue_total_score:
-        win_message = "Red wins!"
+        win_message = RED_WIN_MESSAGE
     elif blue_total_score > red_total_score:
-        win_message = "Blue wins!"
+        win_message = BLUE_WIN_MESSAGE
     else:
-        win_message = "It's a tie!"
+        win_message = TIE_WIN_MESSAGE
 
-    if sim_type == "s":                               # Won't print out a million lines when calculating average
+    if sim_type == "s":                 # Won't print out a million lines when calculating average
         print("=====================")
         print("=======RESULTS=======")
         print("=====================")
@@ -212,7 +212,29 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
         print("======================")
         print("Final score: R %d -- B %d" % (red_total_score, blue_total_score))
         print(win_message)
+    elif sim_type == "a":             # Tracks total points and wins
+        global blue1_total_wins
+        global blue2_total_wins
+        global blue3_total_wins
+        global red1_total_wins
+        global red2_total_wins
+        global red3_total_wins
+        if win_message == BLUE_WIN_MESSAGE:
+            blue1_total_wins += 1
+            blue2_total_wins += 1
+            blue3_total_wins += 1
+        elif win_message == RED_WIN_MESSAGE:
+            red1_total_wins += 1
+            red2_total_wins += 1
+            red3_total_wins += 1
 
+'''============================PROGRAM STARTS HERE================================'''
+
+BLUE_WIN_MESSAGE = "Blue wins!"
+RED_WIN_MESSAGE = "Red wins!"
+TIE_WIN_MESSAGE = "It's a tie!"
+
+SIM_REPS = 1000000
 
 auto_length = 15
 teleop_length = 135
@@ -234,18 +256,36 @@ for type in robot_dict.keys():
     print(type, end=", ")
 print("or random")
 
-r1_type = input("Red 1 type: ")
-r2_type = input("Red 2 type: ")
-r3_type = input("Red 3 type: ")
-b1_type = input("Blue 1 type: ")
-b2_type = input("Blue 2 type: ")
-b3_type = input("Blue 3 type: ")
+r1_type = input("Red 1 type: ").upper()
+r2_type = input("Red 2 type: ").upper()
+r3_type = input("Red 3 type: ").upper()
+b1_type = input("Blue 1 type: ").upper()
+b2_type = input("Blue 2 type: ").upper()
+b3_type = input("Blue 3 type: ").upper()
 
 sim_type = input("[S]ingle simulation or calculate [A]verage scores ").casefold()
-# Single: the same as what happened before
+# Single: detailed description of one simulated game
 # Average: runs 1,000,000 games with the same robots, calculates
 # average scores and win rates
 if sim_type == "s":
     generate_match_data(r1_type, r2_type, r3_type, b1_type, b2_type, b3_type)
 elif sim_type == "a":
-    0
+    red1_total_wins = 0
+    red2_total_wins = 0
+    red3_total_wins = 0
+    blue1_total_wins = 0
+    blue2_total_wins = 0
+    blue3_total_wins = 0
+
+    for i in range(SIM_REPS):
+        generate_match_data(r1_type, r2_type, r3_type, b1_type, b2_type, b3_type)
+    
+    print("=====================")
+    print("=======RESULTS=======")
+    print("=====================")
+    print("Red 1 win rate: %d" % red1_total_wins/SIM_REPS)
+    print("Red 2 win rate: %d" % red2_total_wins/SIM_REPS)
+    print("Red 3 win rate: %d" % red3_total_wins/SIM_REPS)
+    print("Blue 1 win rate: %d" % blue1_total_wins/SIM_REPS)
+    print("Blue 2 win rate: %d" % blue2_total_wins/SIM_REPS)
+    print("Blue 3 win rate: %d" % blue3_total_wins/SIM_REPS)
