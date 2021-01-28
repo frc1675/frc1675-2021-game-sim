@@ -1,4 +1,16 @@
-{
+BLUE_WIN_MESSAGE = "Blue wins!"
+RED_WIN_MESSAGE = "Red wins!"
+TIE_WIN_MESSAGE = "It's a tie!"
+
+SIM_REPS = 1000
+
+AUTO_LENGTH = 15
+TELEOP_LENGTH = 135
+
+PAINTING_SCORE_VALUE = 10
+STATUE_SCORE_VALUE = 15
+
+ROBOT_DICT = {
   "GOD BOT" : {
     "Low Painting" : {
       "Cycle" : 12,

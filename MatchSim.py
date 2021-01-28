@@ -1,13 +1,7 @@
 import json
 import numpy
 import math
-
-
-def read_json_data(json_file):
-    # Reads data from json file into an ordered dictionary in python
-    with open(json_file, "r") as test_dict:
-        test_dict = json.load(test_dict)
-    return test_dict
+from Constants import *
 
 
 def percent_limit(percentage):
@@ -82,8 +76,6 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     global red_far_statues
     global blue_near_statues
     global blue_far_statues
-    global painting_score_value
-    global statue_score_value
     global paintings_scored
     global statues_scored
 
@@ -91,13 +83,13 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
 
     if robot_task_end == time_left:
         if robot_task == "Low Painting" or robot_task == "Mid Painting" or robot_task == "High Painting":
-            robot_score = painting_score_value
+            robot_score = PAINTING_SCORE_VALUE
             paintings_scored += 1
         elif robot_task == "Near Statue" or robot_task == "Far Statue":
-            robot_score = statue_score_value
+            robot_score = STATUE_SCORE_VALUE
             statues_scored += 1
 
-    if time_left == auto_length + teleop_length or robot_task_end == time_left:
+    if time_left == AUTO_LENGTH + TELEOP_LENGTH or robot_task_end == time_left:
         robot_task = task_selection(robot_dict, robot, robot_type)
         robot_execution = generate_robot_data(robot_dict, robot_type, robot_task)
         robot_task_end = time_left - math.ceil(robot_execution["Task Cycle"])
@@ -183,29 +175,29 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     statues_scored = 0
     paintings_scored = 0
 
-    for time_left in range(auto_length + teleop_length, 0, -1):
+    for time_left in range(AUTO_LENGTH + TELEOP_LENGTH, 0, -1):
         red1_increment_score, red1_task, red1_task_end = \
-            robot_match_increment(robot_dict, red1, red1_type, red1_task, red1_task_end, time_left)
+            robot_match_increment(ROBOT_DICT, red1, red1_type, red1_task, red1_task_end, time_left)
         red1_total_score += red1_increment_score
 
         red2_increment_score, red2_task, red2_task_end = \
-            robot_match_increment(robot_dict, red2, red2_type, red2_task, red2_task_end, time_left)
+            robot_match_increment(ROBOT_DICT, red2, red2_type, red2_task, red2_task_end, time_left)
         red2_total_score += red2_increment_score
 
         red3_increment_score, red3_task, red3_task_end = \
-            robot_match_increment(robot_dict, red3, red3_type, red3_task, red3_task_end, time_left)
+            robot_match_increment(ROBOT_DICT, red3, red3_type, red3_task, red3_task_end, time_left)
         red3_total_score += red3_increment_score
         
         blue1_increment_score, blue1_task, blue1_task_end = \
-            robot_match_increment(robot_dict, blue1, blue1_type, blue1_task, blue1_task_end, time_left)
+            robot_match_increment(ROBOT_DICT, blue1, blue1_type, blue1_task, blue1_task_end, time_left)
         blue1_total_score += blue1_increment_score
 
         blue2_increment_score, blue2_task, blue2_task_end = \
-            robot_match_increment(robot_dict, blue2, blue2_type, blue2_task, blue2_task_end, time_left)
+            robot_match_increment(ROBOT_DICT, blue2, blue2_type, blue2_task, blue2_task_end, time_left)
         blue2_total_score += blue2_increment_score
 
         blue3_increment_score, blue3_task, blue3_task_end = \
-            robot_match_increment(robot_dict, blue3, blue3_type, blue3_task, blue3_task_end, time_left)
+            robot_match_increment(ROBOT_DICT, blue3, blue3_type, blue3_task, blue3_task_end, time_left)
         blue3_total_score += blue3_increment_score
 
     # Results at the end of match
@@ -240,6 +232,7 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     elif sim_type == "a":
         global blue_all_wins
         global red_all_wins
+        global all_ties
 
         global red1_all_score
         global red2_all_score
@@ -252,6 +245,8 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
             blue_all_wins += 1
         elif win_message == RED_WIN_MESSAGE:
             red_all_wins += 1
+        else:
+            all_ties += 1
         red1_all_score += red1_total_score
         red2_all_score += red2_total_score
         red3_all_score += red3_total_score
@@ -261,12 +256,6 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
 
 '''============================PROGRAM STARTS HERE================================'''
 
-BLUE_WIN_MESSAGE = "Blue wins!"
-RED_WIN_MESSAGE = "Red wins!"
-TIE_WIN_MESSAGE = "It's a tie!"
-
-SIM_REPS = 1000
-
 red_near_statues = 2
 red_far_statues = 2
 blue_near_statues = 2
@@ -274,16 +263,11 @@ blue_far_statues = 2
 low_paintings = 24
 mid_paintings = 8
 high_paintings = 24
-auto_length = 15
-teleop_length = 135
-painting_score_value = 10
-statue_score_value = 15
 
-robot_dict = read_json_data("Robots.json")
 print("Robot types: ", end="")
-for type in robot_dict.keys():
+for type in ROBOT_DICT.keys():
     print(type, end=", ")
-print("or random")
+print("or [R]andom")
 
 r1_type = input("Red 1 type: ").upper()
 r2_type = input("Red 2 type: ").upper()
@@ -301,6 +285,7 @@ if sim_type == "s":
 elif sim_type == "a":
     red_all_wins = 0
     blue_all_wins = 0
+    all_ties = 0
 
     red1_all_score = 0
     red2_all_score = 0
