@@ -5,16 +5,23 @@ from Constants import *
 
 
 def generate_robot_data(robot_dict, robot_type, robot_task):
-    task_cycle_key = robot_dict[robot_type][robot_task]["Cycle"]
-    task_cycle_sd_key = robot_dict[robot_type][robot_task]["Cycle_StdDev"]
-    task_reliability = robot_dict[robot_type][robot_task]["Reliability"]
-    task_cycle_time = numpy.random.normal(task_cycle_key, task_cycle_sd_key)
-
-    robot_execution = {
-        "Current Task": robot_task,
-        "Task Cycle": task_cycle_time,
-        "Task Reliability": task_reliability
+    if robot_task == None:  # Happens when all game pieces have been scored
+        robot_execution = {
+            "Current Task": "Nothing",
+            "Task Cycle": 1,
+            "Task Reliability": 100
     }
+    else:
+        task_cycle_key = robot_dict[robot_type][robot_task]["Cycle"]
+        task_cycle_sd_key = robot_dict[robot_type][robot_task]["Cycle_StdDev"]
+        task_reliability = robot_dict[robot_type][robot_task]["Reliability"]
+        task_cycle_time = numpy.random.normal(task_cycle_key, task_cycle_sd_key)
+
+        robot_execution = {
+            "Current Task": robot_task,
+            "Task Cycle": task_cycle_time,
+            "Task Reliability": task_reliability
+        }
 
     return robot_execution
 
@@ -56,6 +63,9 @@ def task_selection(robot_dict, robot, robot_type):
     if blue_far_statues == 0 and robot.startswith("B"):
         teleop_priority.pop("Far Statue")
         endgame_priority.pop("Far Statue")
+
+    if len(teleop_priority) == 0:   # Calling min with empty teleop_priority (all
+        return None                 # game pieces scored) crashes the program
     task = min(teleop_priority, key=endgame_priority.get)
     return task
 
@@ -102,8 +112,8 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
                 red_far_statues -= 1
             elif robot.startswith("B"):
                 blue_far_statues -= 1
-        # Won't print out ten thousand lines when calculating average
-        if sim_type == "s":
+                
+        if sim_type == "s":     # Won't print out ten thousand lines when calculating average
             print("%s Task: %s - Time (%r)" % (robot, robot_task, math.ceil(robot_execution["Task Cycle"])))
     return robot_score, robot_task, robot_task_end
 
@@ -202,8 +212,7 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     else:
         win_message = TIE_WIN_MESSAGE
 
-    # Won't print out ten thousand lines when calculating average
-    if sim_type == "s":
+    if sim_type == "s":     # Won't print out ten thousand lines when calculating average
         print("=====================")
         print("=======RESULTS=======")
         print("=====================")
