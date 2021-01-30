@@ -4,14 +4,6 @@ import math
 from Constants import *
 
 
-def percent_limit(percentage):
-    if percentage > 100:
-        percentage = 100
-    elif percentage < 0:
-        percentage = 0
-    return percentage
-
-
 def generate_robot_data(robot_dict, robot_type, robot_task):
     task_cycle_key = robot_dict[robot_type][robot_task]["Cycle"]
     task_cycle_sd_key = robot_dict[robot_type][robot_task]["Cycle_StdDev"]
@@ -110,7 +102,7 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
                 red_far_statues -= 1
             elif robot.startswith("B"):
                 blue_far_statues -= 1
-        # Won't print out a thousand lines when calculating average
+        # Won't print out ten thousand lines when calculating average
         if sim_type == "s":
             print("%s Task: %s - Time (%r)" % (robot, robot_task, math.ceil(robot_execution["Task Cycle"])))
     return robot_score, robot_task, robot_task_end
@@ -210,7 +202,7 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     else:
         win_message = TIE_WIN_MESSAGE
 
-    # Won't print out a thousand lines when calculating average
+    # Won't print out ten thousand lines when calculating average
     if sim_type == "s":
         print("=====================")
         print("=======RESULTS=======")
@@ -278,7 +270,7 @@ b3_type = input("Blue 3 type: ").upper()
 
 sim_type = input("[S]ingle simulation or calculate [A]verage scores ").casefold()
 # Single: detailed description of one simulated game
-# Average: runs 1,000 games with the same robots, calculates
+# Average: runs 10,000 games with the same robots, calculates
 # average scores and win rates
 if sim_type == "s":
     generate_match_data(r1_type, r2_type, r3_type, b1_type, b2_type, b3_type)
@@ -302,6 +294,7 @@ elif sim_type == "a":
     print("=====================")
     print("Red win rate: %f" % (red_all_wins/SIM_REPS))
     print("Blue win rate: %f" % (blue_all_wins/SIM_REPS))
+    print("Tie rate: %f" % (all_ties/SIM_REPS))
     print("=====================")
     print("Red 1 average points: %f" %(red1_all_score/SIM_REPS))
     print("Red 2 average points: %f" %(red2_all_score/SIM_REPS))
