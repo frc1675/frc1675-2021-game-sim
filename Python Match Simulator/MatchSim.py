@@ -3,6 +3,7 @@ import numpy
 import math
 import random
 
+
 def read_json_data(json_file):
     # Reads data from json file into an ordered dictionary in python
     with open(json_file, "r") as test_dict:
@@ -85,9 +86,15 @@ def task_selection(robot_dict, robot, robot_type, time_left):
         teleop_priority.pop("Far Statue")
     if blue_far_statues == 0 and robot.startswith("B"):
         teleop_priority.pop("Far Statue")
+    if red_chain_pull == 0 and robot.startswith("R"):
+        endgame_priority.pop("Chain Pull")
+    if blue_chain_pull == 0 and robot.startswith("B"):
+        endgame_priority.pop("Chain Pull")
 
     if time_left > teleop_length:
         task = min(auto_priority, key=auto_priority.get)
+    elif time_left <= endgame_length:
+        task = min(endgame_priority, key=endgame_priority.get)
     else:
         task = min(teleop_priority, key=teleop_priority.get)
     return task
@@ -102,6 +109,8 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     global red_far_statues
     global blue_near_statues
     global blue_far_statues
+    global red_chain_pull
+    global blue_chain_pull
     global painting_score_value
     global statue_score_value
     global auto_paintings_scored
@@ -110,6 +119,7 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     global teleop_statues_scored
 
     robot_score = 0
+    task_success = False
 
     if robot_task_end == time_left:
         task_success = check_reliability(robot_dict, robot_type, robot_task)
@@ -133,30 +143,48 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
                     teleop_statues_scored += 1
             elif not task_success:
                 robot_task_end -= math.ceil(numpy.random.normal(5, 0.8))
+        elif robot_task == "Chain Pull":
+            if task_success:
+                robot_score = chain_pull_score_value
+            elif not task_success:
+                if robot.startswith("R"):
+                    red_chain_pull += 1
+                elif robot.startswith("B"):
+                    blue_chain_pull += 1
 
     if time_left == auto_length + teleop_length or robot_task_end == time_left:
-        robot_task = task_selection(robot_dict, robot, robot_type, time_left)
-        task_cycle_time = generate_robot_data(robot_dict, robot_type, robot_task)
-        robot_task_end = time_left - task_cycle_time
+        if robot_task == "Chain Pull" and task_success:
+            robot_task = None
+            task_cycle_time = 0
+        else:
+            robot_task = task_selection(robot_dict, robot, robot_type, time_left)
+            task_cycle_time = generate_robot_data(robot_dict, robot_type, robot_task)
+            robot_task_end = time_left - task_cycle_time
 
-        if robot_task == "Low Painting":
-            low_paintings -= 1
-        elif robot_task == "Mid Painting":
-            mid_paintings -= 1
-        elif robot_task == "High Painting":
-            high_paintings -= 1
-        elif robot_task == "Floor Painting":
-            floor_paintings -= 1
-        elif robot_task == "Near Statue":
-            if robot.startswith("R"):
-                red_near_statues -= 1
-            elif robot.startswith("B"):
-                blue_near_statues -= 1
-        elif robot_task == "Far Statue":
-            if robot.startswith("R"):
-                red_far_statues -= 1
-            elif robot.startswith("B"):
-                blue_far_statues -= 1
+            if robot_task == "Low Painting":
+                low_paintings -= 1
+            elif robot_task == "Mid Painting":
+                mid_paintings -= 1
+            elif robot_task == "High Painting":
+                high_paintings -= 1
+            elif robot_task == "Floor Painting":
+                floor_paintings -= 1
+            elif robot_task == "Near Statue":
+                if robot.startswith("R"):
+                    red_near_statues -= 1
+                elif robot.startswith("B"):
+                    blue_near_statues -= 1
+            elif robot_task == "Far Statue":
+                if robot.startswith("R"):
+                    red_far_statues -= 1
+                elif robot.startswith("B"):
+                    blue_far_statues -= 1
+            elif robot_task == "Chain Pull":
+                if robot.startswith("R"):
+                    red_chain_pull -= 1
+                elif robot.startswith("B"):
+                    blue_chain_pull -= 1
+
         print("%s Task: %s - Time (%r)" % (robot, robot_task, task_cycle_time))
     return robot_score, robot_task, robot_task_end
 
@@ -243,18 +271,24 @@ def generate_match_data():
 auto_length = 15
 teleop_length = 135
 endgame_length = 30
+
 red_near_statues = 2
 red_far_statues = 2
 blue_near_statues = 2
 blue_far_statues = 2
+red_chain_pull = 1
+blue_chain_pull = 1
 low_paintings = 24
 mid_paintings = 8
 high_paintings = 24
 floor_paintings = 0
+
 auto_painting_score_value = 20
 painting_score_value = 10
 auto_statue_score_value = 30
 statue_score_value = 15
+chain_pull_score_value = 50
+
 auto_statues_scored = 0
 teleop_statues_scored = 0
 auto_paintings_scored = 0
