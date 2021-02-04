@@ -1,6 +1,8 @@
 import json
 import numpy
 import math
+import random
+
 from Constants import *
 
 
@@ -119,6 +121,20 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
 
 
 def generate_match_data(r1, r2, r3, b1, b2, b3):
+    # Select random robots
+    if r1 == "R":
+        r1 = random.choice(list(ROBOT_DICT.keys()))
+    if r2 == "R":
+        r2 = random.choice(list(ROBOT_DICT.keys()))
+    if r3 == "R":
+        r3 = random.choice(list(ROBOT_DICT.keys()))
+    if b1 == "R":
+        b1 = random.choice(list(ROBOT_DICT.keys()))
+    if b2 == "R":
+        b2 = random.choice(list(ROBOT_DICT.keys()))
+    if b3 == "R":
+        b3 = random.choice(list(ROBOT_DICT.keys()))
+
     # Create the six robots
     red1 = "Red 1"
     red1_type = r1
@@ -155,6 +171,9 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     blue3_task = ""
     blue3_task_end = 0
     blue3_total_score = 0
+
+    if sim_type == "s":
+        print(red1_type+", "+red2_type+", "+red3_type+" versus "+blue1_type+", "+blue2_type+", "+blue3_type)
 
     # Reset the field
     global red_near_statues
