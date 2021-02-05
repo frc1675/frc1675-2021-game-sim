@@ -247,16 +247,16 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     global auto_statues_scored
     global teleop_statues_scored
 
-    red_near_statues = 2
-    red_far_statues = 2
-    blue_near_statues = 2
-    blue_far_statues = 2
-    red_chain_pull = 1
-    blue_chain_pull = 1
-    low_paintings = 24
-    mid_paintings = 8
-    high_paintings = 24
-    floor_paintings = 0
+    red_near_statues = NEAR_STATUES
+    red_far_statues = FAR_STATUES
+    blue_near_statues = NEAR_STATUES
+    blue_far_statues = FAR_STATUES
+    red_chain_pull = CHAIN_PULL
+    blue_chain_pull = CHAIN_PULL
+    low_paintings = LOW_PAINTINGS
+    mid_paintings = MID_PAINTINGS
+    high_paintings = HIGH_PAINTINGS
+    floor_paintings = FLOOR_PAINTINGS
 
     for time_left in range(AUTO_LENGTH + TELEOP_LENGTH, 0, -1):
         red1_increment_score, red1_task, red1_task_end = \
@@ -341,16 +341,16 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
 
 '''============================PROGRAM STARTS HERE================================'''
 
-red_near_statues = 2
-red_far_statues = 2
-blue_near_statues = 2
-blue_far_statues = 2
-red_chain_pull = 1
-blue_chain_pull = 1
-low_paintings = 24
-mid_paintings = 8
-high_paintings = 24
-floor_paintings = 0
+red_near_statues = NEAR_STATUES
+red_far_statues = FAR_STATUES
+blue_near_statues = NEAR_STATUES
+blue_far_statues = FAR_STATUES
+red_chain_pull = CHAIN_PULL
+blue_chain_pull = CHAIN_PULL
+low_paintings = LOW_PAINTINGS
+mid_paintings = MID_PAINTINGS
+high_paintings = HIGH_PAINTINGS
+floor_paintings = FLOOR_PAINTINGS
 
 auto_statues_scored = 0
 teleop_statues_scored = 0
