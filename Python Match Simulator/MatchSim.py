@@ -5,8 +5,72 @@ import random
 from Constants import *
 
 
+def fire_alarms_initialize():
+    # generates random times within the 3 set alarm periods when the alarms will turn
+    # randomly picks which alarms will be active during each period
+
+    # alarm cycle 1: 135-100s left in match (1 Alarm)
+    # alarm cycle 2: 99-60s left in match (2 Alarms)
+    # alarm cycle 3: 59-15s left in match (1 Alarm)
+
+    alarm_period1_end = TELEOP_LENGTH - ALARM_1_PERIOD
+    alarm_period2_end = TELEOP_LENGTH - ALARM_1_PERIOD - ALARM_2_PERIOD
+    alarm_period3_end = TELEOP_LENGTH - ALARM_1_PERIOD - ALARM_2_PERIOD - ALARM_3_PERIOD
+
+    red_period1_alarm_start = numpy.random.randint(alarm_period1_end + DEADZONE, TELEOP_LENGTH+1)
+    red_period1_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
+
+    red_period2_alarm_start = numpy.random.randint(alarm_period2_end + DEADZONE, alarm_period1_end - DEADZONE)
+    red_period2_active_alarms = numpy.random.choice(range(1, 4), 2, replace=False)
+
+    red_period3_alarm_start = numpy.random.randint(alarm_period3_end + DEADZONE, alarm_period2_end -DEADZONE)
+    red_period3_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
+
+    blue_period1_alarm_start = numpy.random.randint(alarm_period1_end + DEADZONE, TELEOP_LENGTH+1)
+    blue_period1_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
+
+    blue_period2_alarm_start = numpy.random.randint(alarm_period2_end + DEADZONE, alarm_period1_end - DEADZONE)
+    blue_period2_active_alarms = numpy.random.choice(range(1, 4), 2, replace=False)
+
+    blue_period3_alarm_start = numpy.random.randint(alarm_period3_end + DEADZONE, alarm_period2_end - DEADZONE)
+    blue_period3_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
+
+    alarm_config = {
+        "Red": {
+            "Period 1": {
+                "Alarm Start": red_period1_alarm_start,
+                "Alarms Active": red_period1_active_alarms
+            },
+            "Period 2": {
+                "Alarm Start": red_period2_alarm_start,
+                "Alarms Active": red_period2_active_alarms
+            },
+            "Period 3": {
+                "Alarm Start": red_period3_alarm_start,
+                "Alarms Active": red_period3_active_alarms
+            }
+        },
+        "Blue": {
+            "Period 1": {
+                "Alarm Start": blue_period1_alarm_start,
+                "Alarms Active": blue_period1_active_alarms
+            },
+            "Period 2": {
+                "Alarm Start": blue_period2_alarm_start,
+                "Alarms Active": blue_period2_active_alarms
+            },
+            "Period 3": {
+                "Alarm Start": blue_period3_alarm_start,
+                "Alarms Active": blue_period3_active_alarms
+            }
+        }
+    }
+
+    return alarm_config
+
+
 def check_reliability(robot_dict, robot_type, robot_task):
-    reliability_roll = random.randint(0, 100)
+    reliability_roll = numpy.random.randint(0, 100+1)
     task_reliability = robot_dict[robot_type][robot_task]["Reliability"]
     if reliability_roll < task_reliability:
         task_success = True
@@ -106,6 +170,7 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     global teleop_statues_scored
 
     robot_score = 0
+    task_success = False
 
     if robot_task_end == time_left:
         task_success = check_reliability(robot_dict, robot_type, robot_task)
@@ -258,6 +323,8 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     high_paintings = HIGH_PAINTINGS
     floor_paintings = FLOOR_PAINTINGS
 
+    fire_alarms_initialize()
+
     for time_left in range(AUTO_LENGTH + TELEOP_LENGTH, 0, -1):
         red1_increment_score, red1_task, red1_task_end = \
             robot_match_increment(ROBOT_DICT, red1, red1_type, red1_task, red1_task_end, time_left)
@@ -359,8 +426,8 @@ teleop_paintings_scored = 0
 
 
 print("Robot types: ", end="")
-for type in ROBOT_DICT.keys():
-    print(type, end=", ")
+for r_type in ROBOT_DICT.keys():
+    print(r_type, end=", ")
 print("or [R]andom")
 
 r1_type = input("Red 1 type: ").upper()

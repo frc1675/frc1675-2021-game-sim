@@ -13,6 +13,12 @@ PAINTING_SCORE_VALUE = 10
 AUTO_STATUE_SCORE_VALUE = 30
 STATUE_SCORE_VALUE = 15
 CHAIN_PULL_SCORE_VALUE = 50
+SPRINKLER_BUTTON_VALUE = 3
+
+ALARM_1_PERIOD = 35
+ALARM_2_PERIOD = 40
+ALARM_3_PERIOD = 45
+DEADZONE = 3
 
 NEAR_STATUES = 2
 FAR_STATUES = 2
@@ -134,7 +140,7 @@ ROBOT_DICT = {
             "Reliability": 85,
             "TeleOp Priority": 3
         },
-        "Fire System": {
+        "Sprinkler Button": {
             "Cycle": 3,
             "Cycle_StdDev": 0.4,
             "Reliability": 95
