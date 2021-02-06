@@ -12,6 +12,7 @@ def fire_alarms_initialize():
     # alarm cycle 1: 135-100s left in match (1 Alarm)
     # alarm cycle 2: 99-60s left in match (2 Alarms)
     # alarm cycle 3: 59-15s left in match (1 Alarm)
+    global alarm_config
 
     alarm_period1_end = TELEOP_LENGTH - ALARM_1_PERIOD
     alarm_period2_end = TELEOP_LENGTH - ALARM_1_PERIOD - ALARM_2_PERIOD
@@ -23,7 +24,7 @@ def fire_alarms_initialize():
     red_period2_alarm_start = numpy.random.randint(alarm_period2_end + DEADZONE, alarm_period1_end - DEADZONE)
     red_period2_active_alarms = numpy.random.choice(range(1, 4), 2, replace=False)
 
-    red_period3_alarm_start = numpy.random.randint(alarm_period3_end + DEADZONE, alarm_period2_end -DEADZONE)
+    red_period3_alarm_start = numpy.random.randint(alarm_period3_end + DEADZONE, alarm_period2_end - DEADZONE)
     red_period3_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
 
     blue_period1_alarm_start = numpy.random.randint(alarm_period1_end + DEADZONE, TELEOP_LENGTH+1)
@@ -65,8 +66,6 @@ def fire_alarms_initialize():
             }
         }
     }
-
-    return alarm_config
 
 
 def check_reliability(robot_dict, robot_type, robot_task):
@@ -172,6 +171,7 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     robot_score = 0
     task_success = False
 
+# when robot completes a task, add appropriate score
     if robot_task_end == time_left:
         task_success = check_reliability(robot_dict, robot_type, robot_task)
         if robot_task == "Low Painting" or robot_task == "Mid Painting" or robot_task == "High Painting":
@@ -203,6 +203,7 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
                 elif robot.startswith("B"):
                     blue_chain_pull += 1
 
+# at the beginning of the match, or when a robot completes a task, select a new task
     if time_left == AUTO_LENGTH + TELEOP_LENGTH or robot_task_end == time_left:
         if robot_task == "Chain Pull" and task_success:
             robot_task = None
@@ -419,6 +420,8 @@ mid_paintings = MID_PAINTINGS
 high_paintings = HIGH_PAINTINGS
 floor_paintings = FLOOR_PAINTINGS
 
+alarm_config = {}
+
 auto_statues_scored = 0
 teleop_statues_scored = 0
 auto_paintings_scored = 0
@@ -465,9 +468,9 @@ elif sim_type == "a":
     print("Blue win rate: %f" % (blue_all_wins/SIM_REPS))
     print("Tie rate: %f" % (all_ties/SIM_REPS))
     print("=====================")
-    print("Red 1 average points: %f" %(red1_all_score/SIM_REPS))
-    print("Red 2 average points: %f" %(red2_all_score/SIM_REPS))
-    print("Red 3 average points: %f" %(red3_all_score/SIM_REPS))
-    print("Blue 1 average points: %f" %(blue1_all_score/SIM_REPS))
-    print("Blue 2 average points: %f" %(blue2_all_score/SIM_REPS))
-    print("Blue 3 average points: %f" %(blue3_all_score/SIM_REPS))
+    print("Red 1 average points: %f" % (red1_all_score/SIM_REPS))
+    print("Red 2 average points: %f" % (red2_all_score/SIM_REPS))
+    print("Red 3 average points: %f" % (red3_all_score/SIM_REPS))
+    print("Blue 1 average points: %f" % (blue1_all_score/SIM_REPS))
+    print("Blue 2 average points: %f" % (blue2_all_score/SIM_REPS))
+    print("Blue 3 average points: %f" % (blue3_all_score/SIM_REPS))
