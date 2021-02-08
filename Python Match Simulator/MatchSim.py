@@ -68,9 +68,77 @@ def fire_alarms_initialize():
     }
 
 
-def check_reliability(robot_dict, robot_type, robot_task):
+def check_alarms(robot, time_left):
+
+    global red_alarms_active
+    global red_alarm_end
+    global blue_alarms_active
+    global blue_alarm_end
+    global red_period1_alarm_fail
+    global red_period2_alarm_fail
+    global red_period3_alarm_fail
+    global blue_period1_alarm_fail
+    global blue_period2_alarm_fail
+    global blue_period3_alarm_fail
+
+    alliance = ""
+
+    if robot.startswith("R"):
+        alliance = "Red"
+    elif robot.startswith("B"):
+        alliance = "Blue"
+    period1_alarm_start = alarm_config[alliance]["Period 1"]["Alarm Start"]
+    period2_alarm_start = alarm_config[alliance]["Period 2"]["Alarm Start"]
+    period3_alarm_start = alarm_config[alliance]["Period 3"]["Alarm Start"]
+
+    if len(red_alarms_active) == 0 and alliance == "Red":
+        if period2_alarm_start < time_left <= period1_alarm_start and not red_period1_alarm_fail:
+            red_alarms_active = alarm_config[alliance]["Period 1"]["Alarms Active"]
+            red_alarm_end = time_left - ALARM_TIME
+            print("Period 1 - Red Alarm", red_alarms_active, red_alarm_end)
+        elif period3_alarm_start < time_left <= period2_alarm_start and not red_period2_alarm_fail:
+            red_alarms_active = alarm_config[alliance]["Period 2"]["Alarms Active"]
+            red_alarm_end = time_left - ALARM_TIME
+            print("Period 2 - Red Alarm", red_alarms_active, red_alarm_end)
+        elif time_left <= period3_alarm_start and not red_period3_alarm_fail:
+            red_alarms_active = alarm_config[alliance]["Period 3"]["Alarms Active"]
+            red_alarm_end = time_left - ALARM_TIME
+            print("Period 3 - Red Alarm", red_alarms_active, red_alarm_end)
+    if time_left == red_alarm_end and alliance == "Red" and len(red_alarms_active) != 0:
+        red_alarms_active = []
+        if time_left == period1_alarm_start - ALARM_TIME:
+            red_period1_alarm_fail = True
+        elif time_left == period2_alarm_start - ALARM_TIME:
+            red_period2_alarm_fail = True
+        elif time_left == period3_alarm_start - ALARM_TIME:
+            red_period3_alarm_fail = True
+
+    if len(blue_alarms_active) == 0 and alliance == "Blue":
+        if period2_alarm_start < time_left <= period1_alarm_start and not blue_period1_alarm_fail:
+            blue_alarms_active = alarm_config[alliance]["Period 1"]["Alarms Active"]
+            blue_alarm_end = time_left - ALARM_TIME
+            print("Period 1 - Blue Alarm", blue_alarms_active, blue_alarm_end)
+        elif period3_alarm_start < time_left <= period2_alarm_start and not blue_period2_alarm_fail:
+            blue_alarms_active = alarm_config[alliance]["Period 2"]["Alarms Active"]
+            blue_alarm_end = time_left - ALARM_TIME
+            print("Period 2 - Blue Alarm", blue_alarms_active, blue_alarm_end)
+        elif time_left <= period3_alarm_start and not blue_period3_alarm_fail:
+            blue_alarms_active = alarm_config[alliance]["Period 3"]["Alarms Active"]
+            blue_alarm_end = time_left - ALARM_TIME
+            print("Period 3 - Blue Alarm", blue_alarms_active, blue_alarm_end)
+    if time_left == blue_alarm_end and alliance == "Blue" and len(blue_alarms_active) != 0:
+        blue_alarms_active = []
+        if time_left == period1_alarm_start - ALARM_TIME:
+            blue_period1_alarm_fail = True
+        elif time_left == period2_alarm_start - ALARM_TIME:
+            blue_period2_alarm_fail = True
+        elif time_left == period3_alarm_start - ALARM_TIME:
+            blue_period3_alarm_fail = True
+
+
+def check_reliability(robot_type, robot_task):
     reliability_roll = numpy.random.randint(0, 100+1)
-    task_reliability = robot_dict[robot_type][robot_task]["Reliability"]
+    task_reliability = ROBOT_DICT[robot_type][robot_task]["Reliability"]
     if reliability_roll < task_reliability:
         task_success = True
     else:
@@ -80,37 +148,37 @@ def check_reliability(robot_dict, robot_type, robot_task):
     return task_success
 
 
-def generate_robot_data(robot_dict, robot_type, robot_task):
+def generate_robot_data(robot_type, robot_task):
 
-    task_cycle_key = robot_dict[robot_type][robot_task]["Cycle"]
-    task_cycle_sd_key = robot_dict[robot_type][robot_task]["Cycle_StdDev"]
+    task_cycle_key = ROBOT_DICT[robot_type][robot_task]["Cycle"]
+    task_cycle_sd_key = ROBOT_DICT[robot_type][robot_task]["Cycle_StdDev"]
     task_cycle_time = numpy.random.normal(task_cycle_key, task_cycle_sd_key)
     task_cycle_time = math.ceil(task_cycle_time)
 
     return task_cycle_time
 
 
-def task_selection(robot_dict, robot, robot_type, time_left):
+def task_selection(robot, robot_type, time_left):
     auto_priority = {
-        "Low Painting": robot_dict[robot_type]["Low Painting"]["Auto Priority"],
-        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Auto Priority"],
-        "High Painting": robot_dict[robot_type]["High Painting"]["Auto Priority"],
-        "Near Statue": robot_dict[robot_type]["Near Statue"]["Auto Priority"]
+        "Low Painting": ROBOT_DICT[robot_type]["Low Painting"]["Auto Priority"],
+        "Mid Painting": ROBOT_DICT[robot_type]["Mid Painting"]["Auto Priority"],
+        "High Painting": ROBOT_DICT[robot_type]["High Painting"]["Auto Priority"],
+        "Near Statue": ROBOT_DICT[robot_type]["Near Statue"]["Auto Priority"]
     }
     teleop_priority = {
-        "Low Painting": robot_dict[robot_type]["Low Painting"]["TeleOp Priority"],
-        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["TeleOp Priority"],
-        "High Painting": robot_dict[robot_type]["High Painting"]["TeleOp Priority"],
-        "Floor Painting": robot_dict[robot_type]["Floor Painting"]["TeleOp Priority"],
-        "Near Statue": robot_dict[robot_type]["Near Statue"]["TeleOp Priority"],
-        "Far Statue": robot_dict[robot_type]["Far Statue"]["TeleOp Priority"]
+        "Low Painting": ROBOT_DICT[robot_type]["Low Painting"]["TeleOp Priority"],
+        "Mid Painting": ROBOT_DICT[robot_type]["Mid Painting"]["TeleOp Priority"],
+        "High Painting": ROBOT_DICT[robot_type]["High Painting"]["TeleOp Priority"],
+        "Floor Painting": ROBOT_DICT[robot_type]["Floor Painting"]["TeleOp Priority"],
+        "Near Statue": ROBOT_DICT[robot_type]["Near Statue"]["TeleOp Priority"],
+        "Far Statue": ROBOT_DICT[robot_type]["Far Statue"]["TeleOp Priority"]
     }
     endgame_priority = {
-        "Low Painting": robot_dict[robot_type]["Low Painting"]["Endgame Priority"],
-        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Endgame Priority"],
-        "High Painting": robot_dict[robot_type]["High Painting"]["Endgame Priority"],
-        "Floor Painting": robot_dict[robot_type]["High Painting"]["Endgame Priority"],
-        "Chain Pull": robot_dict[robot_type]["Chain Pull"]["Endgame Priority"]
+        "Low Painting": ROBOT_DICT[robot_type]["Low Painting"]["Endgame Priority"],
+        "Mid Painting": ROBOT_DICT[robot_type]["Mid Painting"]["Endgame Priority"],
+        "High Painting": ROBOT_DICT[robot_type]["High Painting"]["Endgame Priority"],
+        "Floor Painting": ROBOT_DICT[robot_type]["High Painting"]["Endgame Priority"],
+        "Chain Pull": ROBOT_DICT[robot_type]["Chain Pull"]["Endgame Priority"]
     }
     if low_paintings == 0:
         auto_priority.pop("Low Painting")
@@ -151,7 +219,7 @@ def task_selection(robot_dict, robot, robot_type, time_left):
     return task
 
 
-def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_end, time_left):
+def robot_match_increment(robot, robot_type, robot_task, robot_task_end, time_left):
     global low_paintings
     global mid_paintings
     global high_paintings
@@ -171,9 +239,11 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
     robot_score = 0
     task_success = False
 
+    check_alarms(robot, time_left)
+
 # when robot completes a task, add appropriate score
     if robot_task_end == time_left:
-        task_success = check_reliability(robot_dict, robot_type, robot_task)
+        task_success = check_reliability(robot_type, robot_task)
         if robot_task == "Low Painting" or robot_task == "Mid Painting" or robot_task == "High Painting":
             if task_success:
                 if time_left > TELEOP_LENGTH:
@@ -209,8 +279,8 @@ def robot_match_increment(robot_dict, robot, robot_type, robot_task, robot_task_
             robot_task = None
             task_cycle_time = 0
         else:
-            robot_task = task_selection(robot_dict, robot, robot_type, time_left)
-            task_cycle_time = generate_robot_data(robot_dict, robot_type, robot_task)
+            robot_task = task_selection(robot, robot_type, time_left)
+            task_cycle_time = generate_robot_data(robot_type, robot_task)
             robot_task_end = time_left - task_cycle_time
 
             if robot_task == "Low Painting":
@@ -328,27 +398,27 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
 
     for time_left in range(AUTO_LENGTH + TELEOP_LENGTH, 0, -1):
         red1_increment_score, red1_task, red1_task_end = \
-            robot_match_increment(ROBOT_DICT, red1, red1_type, red1_task, red1_task_end, time_left)
+            robot_match_increment(red1, red1_type, red1_task, red1_task_end, time_left)
         red1_total_score += red1_increment_score
 
         red2_increment_score, red2_task, red2_task_end = \
-            robot_match_increment(ROBOT_DICT, red2, red2_type, red2_task, red2_task_end, time_left)
+            robot_match_increment(red2, red2_type, red2_task, red2_task_end, time_left)
         red2_total_score += red2_increment_score
 
         red3_increment_score, red3_task, red3_task_end = \
-            robot_match_increment(ROBOT_DICT, red3, red3_type, red3_task, red3_task_end, time_left)
+            robot_match_increment(red3, red3_type, red3_task, red3_task_end, time_left)
         red3_total_score += red3_increment_score
         
         blue1_increment_score, blue1_task, blue1_task_end = \
-            robot_match_increment(ROBOT_DICT, blue1, blue1_type, blue1_task, blue1_task_end, time_left)
+            robot_match_increment(blue1, blue1_type, blue1_task, blue1_task_end, time_left)
         blue1_total_score += blue1_increment_score
 
         blue2_increment_score, blue2_task, blue2_task_end = \
-            robot_match_increment(ROBOT_DICT, blue2, blue2_type, blue2_task, blue2_task_end, time_left)
+            robot_match_increment(blue2, blue2_type, blue2_task, blue2_task_end, time_left)
         blue2_total_score += blue2_increment_score
 
         blue3_increment_score, blue3_task, blue3_task_end = \
-            robot_match_increment(ROBOT_DICT, blue3, blue3_type, blue3_task, blue3_task_end, time_left)
+            robot_match_increment(blue3, blue3_type, blue3_task, blue3_task_end, time_left)
         blue3_total_score += blue3_increment_score
 
     # Results at the end of match
@@ -419,6 +489,18 @@ low_paintings = LOW_PAINTINGS
 mid_paintings = MID_PAINTINGS
 high_paintings = HIGH_PAINTINGS
 floor_paintings = FLOOR_PAINTINGS
+
+red_alarms_active = []
+blue_alarms_active = []
+red_alarm_end = 0
+blue_alarm_end = 0
+
+red_period1_alarm_fail = False
+red_period2_alarm_fail = False
+red_period3_alarm_fail = False
+blue_period1_alarm_fail = False
+blue_period2_alarm_fail = False
+blue_period3_alarm_fail = False
 
 alarm_config = {}
 
