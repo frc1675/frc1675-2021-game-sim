@@ -315,17 +315,17 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, time_le
 def generate_match_data(r1, r2, r3, b1, b2, b3):
     # Select random robots
     if r1 == "R":
-        r1 = random.choice(list(ROBOT_DICT.keys()))
+        r1 = random.choice(robot_sample)
     if r2 == "R":
-        r2 = random.choice(list(ROBOT_DICT.keys()))
+        r2 = random.choice(robot_sample)
     if r3 == "R":
-        r3 = random.choice(list(ROBOT_DICT.keys()))
+        r3 = random.choice(robot_sample)
     if b1 == "R":
-        b1 = random.choice(list(ROBOT_DICT.keys()))
+        b1 = random.choice(robot_sample)
     if b2 == "R":
-        b2 = random.choice(list(ROBOT_DICT.keys()))
+        b2 = random.choice(robot_sample)
     if b3 == "R":
-        b3 = random.choice(list(ROBOT_DICT.keys()))
+        b3 = random.choice(robot_sample)
 
     # Create the six robots
     red1 = "Red 1"
@@ -365,7 +365,9 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     blue3_total_score = 0
 
     if sim_type == "s":
-        print(red1_type+", "+red2_type+", "+red3_type+" versus "+blue1_type+", "+blue2_type+", "+blue3_type)
+        print(red1_type + ", " + red2_type + ", " + red3_type)
+        print("****VERSUS****")
+        print(blue1_type + ", " + blue2_type + ", " + blue3_type)
 
     # Reset the field
     global low_paintings
@@ -397,6 +399,7 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     fire_alarms_initialize()
 
     for time_left in range(AUTO_LENGTH + TELEOP_LENGTH, 0, -1):
+        print(str(time_left) + "...")
         red1_increment_score, red1_task, red1_task_end = \
             robot_match_increment(red1, red1_type, red1_task, red1_task_end, time_left)
         red1_total_score += red1_increment_score
@@ -438,10 +441,12 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
         print("Red 1 Score: %d" % red1_total_score)
         print("Red 2 Score: %d" % red2_total_score)
         print("Red 3 Score: %d" % red3_total_score)
+        print("Chains pulled: %d" % (CHAIN_PULL - red_chain_pull))
         print("======================")
         print("Blue 1 Score: %d" % blue1_total_score)
         print("Blue 2 Score: %d" % blue2_total_score)
         print("Blue 3 Score: %d" % blue3_total_score)
+        print("Chains pulled: %d" % (CHAIN_PULL - blue_chain_pull))
         print("======================")
         print("Auto Paintings Scored: %d" % auto_paintings_scored)
         print("TeleOp Paintings Scored: %d" % teleop_paintings_scored)
@@ -508,6 +513,12 @@ auto_statues_scored = 0
 teleop_statues_scored = 0
 auto_paintings_scored = 0
 teleop_paintings_scored = 0
+
+# Creates a weighted list of robot types to choose from randomly
+robot_sample = []
+for r_type in ROBOT_DISTRIBUTION.keys():
+    for i in range(ROBOT_DISTRIBUTION[r_type]):
+        robot_sample.append(r_type)
 
 
 print("Robot types: ", end="")
