@@ -241,6 +241,23 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, time_le
 
     check_alarms(robot, time_left)
 
+    if time_left > ENDGAME_LENGTH:
+        fire_system_priority = ROBOT_DICT[robot_type]["Fire System"]["TeleOp Priority"]
+        current_task_priority = ROBOT_DICT[robot_type][robot_task]["TeleOp Priority"]
+    elif time_left <= ENDGAME_LENGTH:
+        fire_system_priority = ROBOT_DICT[robot_type]["Fire System"]["Endgame Priority"]
+        current_task_priority = ROBOT_DICT[robot_type][robot_task]["Endgame Priority"]
+
+    if robot.startswith("R") and len(red_alarms_active) > 0:
+        alarm_active = True
+    elif robot.startswith("B") and len(blue_alarms_active) > 0:
+        alarm_active = True
+    else:
+        alarm_active = False
+
+    if alarm_active and fire_system_priority >= current_task_priority:
+        print("><><><>< ALARM TASK ><><><><")
+
 # when robot completes a task, add appropriate score
     if robot_task_end == time_left:
         task_success = check_reliability(robot_type, robot_task)
@@ -306,7 +323,9 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, time_le
                     red_chain_pull -= 1
                 elif robot.startswith("B"):
                     blue_chain_pull -= 1
-                
+
+
+
         if sim_type == "s":     # Won't print out ten thousand lines when calculating average
             print("%s Task: %s - Time (%r)" % (robot, robot_task, task_cycle_time))
     return robot_score, robot_task, robot_task_end
