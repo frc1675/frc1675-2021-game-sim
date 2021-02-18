@@ -335,19 +335,15 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
     global blue_chain_pull
     global red_chain_pull
 
-    global auto_paintings_scored
     global red_auto_paintings_scored
     global blue_auto_paintings_scored
 
-    global teleop_paintings_scored
     global red_teleop_paintings_scored
     global blue_teleop_paintings_scored
 
-    global auto_statues_scored
     global red_auto_statues_scored
     global blue_auto_statues_scored
 
-    global teleop_statues_scored
     global red_teleop_statues_scored
     global blue_teleop_statues_scored
 
@@ -434,7 +430,12 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
                 robot_task_end -= math.ceil(numpy.random.normal(5, 0.8))
         elif robot_task == "Chain Pull":
             if task_success:
-                robot_score = CHAIN_PULL_SCORE_VALUE
+                if robot.startswith("R"):
+                    if red_chain_pull == 0:
+                        robot_score = CHAIN_PULL_SCORE_VALUE + red_teleop_statues_scored + red_auto_statues_scored
+                elif robot.startswith("B"):
+                    if blue_chain_pull == 0:
+                        robot_score = CHAIN_PULL_SCORE_VALUE + red_teleop_statues_scored + red_auto_statues_scored
             elif not task_success:
                 if robot.startswith("R"):
                     red_chain_pull += 1
@@ -527,10 +528,14 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     global blue_far_statues
     global red_chain_pull
     global blue_chain_pull
-    global auto_paintings_scored
-    global teleop_paintings_scored
-    global auto_statues_scored
-    global teleop_statues_scored
+    global red_auto_paintings_scored
+    global red_teleop_paintings_scored
+    global red_auto_statues_scored
+    global red_teleop_statues_scored
+    global blue_auto_paintings_scored
+    global blue_teleop_paintings_scored
+    global blue_auto_statues_scored
+    global blue_teleop_statues_scored
 
     red_near_statues = NEAR_STATUES
     red_far_statues = FAR_STATUES
@@ -542,6 +547,18 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     mid_paintings = MID_PAINTINGS
     high_paintings = HIGH_PAINTINGS
     floor_paintings = FLOOR_PAINTINGS
+
+    red_auto_statues_scored = 0
+    blue_auto_statues_scored = 0
+    red_teleop_statues_scored = 0
+    blue_teleop_statues_scored = 0
+    red_auto_paintings_scored = 0
+    blue_auto_paintings_scored = 0
+    red_teleop_paintings_scored = 0
+    blue_teleop_paintings_scored = 0
+
+    blue_alliance_rp = 0
+    red_alliance_rp = 0
 
     fire_alarms_initialize()
 
@@ -572,13 +589,27 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
 
     # Results at the end of match
     red_total_score = red1_total_score + red2_total_score + red3_total_score
+    if not red_period1_alarm_fail and not red_period2_alarm_fail and not red_period3_alarm_fail:
+        red_alliance_rp += FIRE_ALARM_RP
+    if red_auto_statues_scored + red_teleop_statues_scored >= RP_STATUES_REQUIRED:
+        red_alliance_rp += STATUE_LIFT_RP
+
     blue_total_score = blue1_total_score + blue2_total_score + blue3_total_score
+    if not blue_period1_alarm_fail and not blue_period2_alarm_fail and not blue_period3_alarm_fail:
+        blue_alliance_rp += FIRE_ALARM_RP
+    if blue_auto_statues_scored + blue_teleop_statues_scored >= RP_STATUES_REQUIRED:
+        blue_alliance_rp += STATUE_LIFT_RP
+
     if red_total_score > blue_total_score:
         win_message = RED_WIN_MESSAGE
+        red_alliance_rp += WIN_RP
     elif blue_total_score > red_total_score:
         win_message = BLUE_WIN_MESSAGE
+        blue_alliance_rp += WIN_RP
     else:
         win_message = TIE_WIN_MESSAGE
+        red_alliance_rp += TIE_RP
+        blue_alliance_rp += TIE_RP
 
     if sim_type == "s":     # Won't print out ten thousand lines when calculating average
         print("=====================")
@@ -602,6 +633,7 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
         print("======================")
         print("Final score: R %d -- B %d" % (red_total_score, blue_total_score))
         print(win_message)
+        print("Ranking Points: R %d -- B %d" % (red_alliance_rp, blue_alliance_rp))
 
     # Tracks total points and wins
     elif sim_type == "a":
@@ -616,6 +648,9 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
         global blue2_all_score
         global blue3_all_score
 
+        global red_all_rp
+        global blue_all_rp
+
         if win_message == BLUE_WIN_MESSAGE:
             blue_all_wins += 1
         elif win_message == RED_WIN_MESSAGE:
@@ -625,9 +660,12 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
         red1_all_score += red1_total_score
         red2_all_score += red2_total_score
         red3_all_score += red3_total_score
+        red_all_rp += red_alliance_rp
+
         blue1_all_score += blue1_total_score
         blue2_all_score += blue2_total_score
         blue3_all_score += blue3_total_score
+        blue_all_rp += blue_alliance_rp
 
 
 '''============================PROGRAM STARTS HERE================================'''
@@ -664,16 +702,12 @@ blue_period3_alarm_set = False
 
 alarm_config = {}
 
-auto_statues_scored = 0
 red_auto_statues_scored = 0
 blue_auto_statues_scored = 0
-teleop_statues_scored = 0
 red_teleop_statues_scored = 0
 blue_teleop_statues_scored = 0
-auto_paintings_scored = 0
 red_auto_paintings_scored = 0
 blue_auto_paintings_scored = 0
-teleop_paintings_scored = 0
 red_teleop_paintings_scored = 0
 blue_teleop_paintings_scored = 0
 
@@ -704,9 +738,12 @@ elif sim_type == "a":
     red1_all_score = 0
     red2_all_score = 0
     red3_all_score = 0
+    red_all_rp = 0
+
     blue1_all_score = 0
     blue2_all_score = 0
     blue3_all_score = 0
+    blue_all_rp = 0
 
     for i in range(SIM_REPS):
         generate_match_data(r1_type, r2_type, r3_type, b1_type, b2_type, b3_type)
@@ -724,3 +761,6 @@ elif sim_type == "a":
     print("Blue 1 average points: %f" % (blue1_all_score/SIM_REPS))
     print("Blue 2 average points: %f" % (blue2_all_score/SIM_REPS))
     print("Blue 3 average points: %f" % (blue3_all_score/SIM_REPS))
+    print("=====================")
+    print("Red Alliance Average RP: %f" % (red_all_rp/SIM_REPS))
+    print("Blue Alliance Average RP: %f" % (blue_all_rp/SIM_REPS))
