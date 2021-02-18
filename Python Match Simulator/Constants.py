@@ -46,8 +46,8 @@ ROBOT_DICT = {
             "Auto Reliability": 94,
             "Reliability": 95,
             "Auto Priority": 2,
-            "TeleOp Priority": 3,
-            "Endgame Priority": 2
+            "TeleOp Priority": 5,
+            "Endgame Priority": 4
         },
         "High Painting": {
             "Cycle": 16,
@@ -55,15 +55,15 @@ ROBOT_DICT = {
             "Auto Reliability": 90,
             "Reliability": 93,
             "Auto Priority": 4,
-            "TeleOp Priority": 6,
-            "Endgame Priority": 4
+            "TeleOp Priority": 7,
+            "Endgame Priority": 6
         },
         "Floor Painting": {
             "Cycle": 12,
             "Cycle_StdDev": 2.2,
             "Reliability": 97,
-            "TeleOp Priority": 5,
-            "Endgame Priority": 4
+            "TeleOp Priority": 6,
+            "Endgame Priority": 5
         },
         "Near Statue": {
             "Cycle": 15,
@@ -77,12 +77,14 @@ ROBOT_DICT = {
             "Cycle": 25,
             "Cycle_StdDev": 5,
             "Reliability": 95,
-            "TeleOp Priority": 2
+            "TeleOp Priority": 3
         },
         "Fire System": {
             "Cycle": 3,
             "Cycle_StdDev": 0.4,
-            "Reliability": 98
+            "Reliability": 98,
+            "TeleOp Priority": 2,
+            "Endgame Priority": 2
         },
         "Chain Pull": {
             "Cycle": 8,
@@ -108,8 +110,8 @@ ROBOT_DICT = {
             "Auto Reliability": 75,
             "Reliability": 80,
             "Auto Priority": 2,
-            "TeleOp Priority": 3,
-            "Endgame Priority": 2
+            "TeleOp Priority": 5,
+            "Endgame Priority": 4
         },
         "High Painting": {
             "Cycle": 19,
@@ -117,15 +119,15 @@ ROBOT_DICT = {
             "Auto Reliability": 40,
             "Reliability": 50,
             "Auto Priority": 4,
-            "TeleOp Priority": 6,
-            "Endgame Priority": 5
+            "TeleOp Priority": 7,
+            "Endgame Priority": 6
         },
         "Floor Painting": {
             "Cycle": 16,
             "Cycle_StdDev": 3.5,
             "Reliability": 85,
-            "TeleOp Priority": 5,
-            "Endgame Priority": 4
+            "TeleOp Priority": 6,
+            "Endgame Priority": 5
         },
         "Near Statue": {
             "Cycle": 20,
@@ -133,7 +135,7 @@ ROBOT_DICT = {
             "Auto Reliability": 84,
             "Reliability": 90,
             "Auto Priority": 1,
-            "TeleOp Priority": 2
+            "TeleOp Priority": 1
         },
         "Far Statue": {
             "Cycle": 30,
@@ -141,10 +143,12 @@ ROBOT_DICT = {
             "Reliability": 85,
             "TeleOp Priority": 3
         },
-        "Sprinkler Button": {
-            "Cycle": 3,
-            "Cycle_StdDev": 0.4,
-            "Reliability": 95
+        "Fire System": {
+            "Cycle": 7,
+            "Cycle_StdDev": 1.5,
+            "Reliability": 95,
+            "TeleOp Priority": 2,
+            "Endgame Priority": 2
         },
         "Chain Pull": {
             "Cycle": 12,
