@@ -144,8 +144,8 @@ ROBOT_DICT = {
             "TeleOp Priority": 3
         },
         "Fire System": {
-            "Cycle": 3,
-            "Cycle_StdDev": 0.4,
+            "Cycle": 7,
+            "Cycle_StdDev": 1.5,
             "Reliability": 95,
             "TeleOp Priority": 2,
             "Endgame Priority": 2
