@@ -13,6 +13,41 @@ def fire_alarms_initialize():
     # alarm cycle 2: 99-60s left in match (2 Alarms)
     # alarm cycle 3: 59-15s left in match (1 Alarm)
     global alarm_config
+    global red_alarms_active
+    global blue_alarms_active
+    global red_alarm_end
+    global blue_alarm_end
+    global red_period1_alarm_fail
+    global red_period2_alarm_fail
+    global red_period3_alarm_fail
+    global blue_period1_alarm_fail
+    global blue_period2_alarm_fail
+    global blue_period3_alarm_fail
+    global red_period1_alarm_set
+    global red_period2_alarm_set
+    global red_period3_alarm_set
+    global blue_period1_alarm_set
+    global blue_period2_alarm_set
+    global blue_period3_alarm_set
+
+    red_alarms_active = []
+    blue_alarms_active = []
+    red_alarm_end = 0
+    blue_alarm_end = 0
+
+    red_period1_alarm_fail = False
+    red_period2_alarm_fail = False
+    red_period3_alarm_fail = False
+    blue_period1_alarm_fail = False
+    blue_period2_alarm_fail = False
+    blue_period3_alarm_fail = False
+
+    red_period1_alarm_set = False
+    red_period2_alarm_set = False
+    red_period3_alarm_set = False
+    blue_period1_alarm_set = False
+    blue_period2_alarm_set = False
+    blue_period3_alarm_set = False
 
     alarm_period1_end = TELEOP_LENGTH - ALARM_1_PERIOD
     alarm_period2_end = TELEOP_LENGTH - ALARM_1_PERIOD - ALARM_2_PERIOD
@@ -176,6 +211,42 @@ def generate_robot_data(robot_type, robot_task):
     return task_cycle_time
 
 
+def decrement_game_object_stock(robot, robot_task):
+    global low_paintings
+    global mid_paintings
+    global high_paintings
+    global floor_paintings
+    global red_near_statues
+    global red_far_statues
+    global blue_near_statues
+    global blue_far_statues
+    global red_chain_pull
+    global blue_chain_pull
+
+    if robot_task == "Low Painting":
+        low_paintings -= 1
+    elif robot_task == "Mid Painting":
+        mid_paintings -= 1
+    elif robot_task == "High Painting":
+        high_paintings -= 1
+    elif robot_task == "Floor Painting":
+        floor_paintings -= 1
+    elif robot_task == "Near Statue":
+        if robot.startswith("R"):
+            red_near_statues -= 1
+        elif robot.startswith("B"):
+            blue_near_statues -= 1
+    elif robot_task == "Far Statue":
+        if robot.startswith("R"):
+            red_far_statues -= 1
+        elif robot.startswith("B"):
+            blue_far_statues -= 1
+    elif robot_task == "Chain Pull":
+        if robot.startswith("R"):
+            red_chain_pull -= 1
+        elif robot.startswith("B"):
+            blue_chain_pull -= 1
+
 def task_selection(robot, robot_type, time_left):
     auto_priority = {
         "Low Painting": ROBOT_DICT[robot_type]["Low Painting"]["Auto Priority"],
@@ -250,9 +321,20 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
     global red_chain_pull
 
     global auto_paintings_scored
+    global red_auto_paintings_scored
+    global blue_auto_paintings_scored
+
     global teleop_paintings_scored
+    global red_teleop_paintings_scored
+    global blue_teleop_paintings_scored
+
     global auto_statues_scored
+    global red_auto_statues_scored
+    global blue_auto_statues_scored
+
     global teleop_statues_scored
+    global red_teleop_statues_scored
+    global blue_teleop_statues_scored
 
     robot_score = 0
     task_success = False
@@ -264,7 +346,9 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
         robot_task = task_selection(robot, robot_type, time_left)
         task_cycle_time = generate_robot_data(robot_type, robot_task)
         robot_task_end = time_left - task_cycle_time
+        decrement_game_object_stock(robot,robot_task)
 
+# check if hitting a sprinkler button is a higher priority than the current task
     if time_left > ENDGAME_LENGTH:
         fire_system_priority = ROBOT_DICT[robot_type]["Fire System"]["TeleOp Priority"]
         current_task_priority = ROBOT_DICT[robot_type][robot_task]["TeleOp Priority"]
@@ -297,27 +381,39 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
             elif robot.startswith("B"):
                 blue_alarms_active.append(1)
 
-# when robot completes a task, add appropriate score
+# when robot completes a non-alarm task, add appropriate score and select new task
     if robot_task_end == time_left:
         task_success = check_reliability(robot_type, robot_task)
         if robot_task == "Low Painting" or robot_task == "Mid Painting" or robot_task == "High Painting":
             if task_success:
                 if time_left > TELEOP_LENGTH:
                     robot_score = AUTO_PAINTING_SCORE_VALUE
-                    auto_paintings_scored += 1
+                    if robot.startswith("R"):
+                        red_auto_paintings_scored += 1
+                    elif robot.startswith("B"):
+                        blue_auto_paintings_scored += 1
                 else:
                     robot_score = PAINTING_SCORE_VALUE
-                    teleop_paintings_scored += 1
+                    if robot.startswith("R"):
+                        red_auto_paintings_scored += 1
+                    elif robot.startswith("B"):
+                        blue_auto_paintings_scored += 1
             elif not task_success:
                 floor_paintings += 1
         elif robot_task == "Near Statue" or robot_task == "Far Statue":
             if task_success:
                 if time_left > TELEOP_LENGTH:
                     robot_score = AUTO_STATUE_SCORE_VALUE
-                    auto_statues_scored += 1
+                    if robot.startswith("R"):
+                        red_auto_statues_scored += 1
+                    elif robot.startswith("B"):
+                        blue_auto_statues_scored += 1
                 else:
                     robot_score = STATUE_SCORE_VALUE
-                    teleop_statues_scored += 1
+                    if robot.startswith("R"):
+                        red_teleop_statues_scored += 1
+                    elif robot.startswith("B"):
+                        blue_teleop_statues_scored += 1
             elif not task_success:
                 robot_task_end -= math.ceil(numpy.random.normal(5, 0.8))
         elif robot_task == "Chain Pull":
@@ -329,8 +425,6 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
                 elif robot.startswith("B"):
                     blue_chain_pull += 1
 
-# when a robot completes a task, select a new task and decrement appropriate counters
-    if robot_task_end == time_left:
         if robot_task == "Chain Pull" and task_success:
             robot_task = None
             task_cycle_time = 0
@@ -338,30 +432,7 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
             robot_task = task_selection(robot, robot_type, time_left)
             task_cycle_time = generate_robot_data(robot_type, robot_task)
             robot_task_end = time_left - task_cycle_time
-
-            if robot_task == "Low Painting":
-                low_paintings -= 1
-            elif robot_task == "Mid Painting":
-                mid_paintings -= 1
-            elif robot_task == "High Painting":
-                high_paintings -= 1
-            elif robot_task == "Floor Painting":
-                floor_paintings -= 1
-            elif robot_task == "Near Statue":
-                if robot.startswith("R"):
-                    red_near_statues -= 1
-                elif robot.startswith("B"):
-                    blue_near_statues -= 1
-            elif robot_task == "Far Statue":
-                if robot.startswith("R"):
-                    red_far_statues -= 1
-                elif robot.startswith("B"):
-                    blue_far_statues -= 1
-            elif robot_task == "Chain Pull":
-                if robot.startswith("R"):
-                    red_chain_pull -= 1
-                elif robot.startswith("B"):
-                    blue_chain_pull -= 1
+            decrement_game_object_stock(robot, robot_task)
 
         if sim_type == "s":     # Won't print out ten thousand lines when calculating average
             print("%s Task: %s - Time (%r)" % (robot, robot_task, task_cycle_time))
@@ -371,17 +442,17 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
 def generate_match_data(r1, r2, r3, b1, b2, b3):
     # Select random robots
     if r1 == "R":
-        r1 = random.choice(robot_sample)
+        r1 = random.choice(list(ROBOT_DICT.keys()))
     if r2 == "R":
-        r2 = random.choice(robot_sample)
+        r2 = random.choice(list(ROBOT_DICT.keys()))
     if r3 == "R":
-        r3 = random.choice(robot_sample)
+        r3 = random.choice(list(ROBOT_DICT.keys()))
     if b1 == "R":
-        b1 = random.choice(robot_sample)
+        b1 = random.choice(list(ROBOT_DICT.keys()))
     if b2 == "R":
-        b2 = random.choice(robot_sample)
+        b2 = random.choice(list(ROBOT_DICT.keys()))
     if b3 == "R":
-        b3 = random.choice(robot_sample)
+        b3 = random.choice(list(ROBOT_DICT.keys()))
 
     # Create the six robots
     red1 = "Red 1"
@@ -427,9 +498,7 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     blue3_alarm_task_end = 0
 
     if sim_type == "s":
-        print(red1_type + ", " + red2_type + ", " + red3_type)
-        print("****VERSUS****")
-        print(blue1_type + ", " + blue2_type + ", " + blue3_type)
+        print(red1_type+", "+red2_type+", "+red3_type+" versus "+blue1_type+", "+blue2_type+", "+blue3_type)
 
     # Reset the field
     global low_paintings
@@ -461,11 +530,8 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     fire_alarms_initialize()
 
     for time_left in range(AUTO_LENGTH + TELEOP_LENGTH, 0, -1):
-        print(str(time_left) + "...")
-
         red1_increment_score, red1_task, red1_task_end, red1_alarm_task_end = \
             robot_match_increment(red1, red1_type, red1_task, red1_task_end, red1_alarm_task_end,  time_left)
-
         red1_total_score += red1_increment_score
 
         red2_increment_score, red2_task, red2_task_end, red2_alarm_task_end = \
@@ -505,20 +571,22 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
         print("Red 1 Score: %d" % red1_total_score)
         print("Red 2 Score: %d" % red2_total_score)
         print("Red 3 Score: %d" % red3_total_score)
-        print("Chains pulled: %d" % (CHAIN_PULL - red_chain_pull))
+        print("Red Auto Paintings Scored: %d" % red_auto_paintings_scored)
+        print("Red TeleOp Paintings Scored: %d" % red_teleop_paintings_scored)
+        print("Red Auto Statues Scored: %d" % red_auto_statues_scored)
+        print("Red TeleOp Statues Scored: %d" % red_teleop_statues_scored)
         print("======================")
         print("Blue 1 Score: %d" % blue1_total_score)
         print("Blue 2 Score: %d" % blue2_total_score)
         print("Blue 3 Score: %d" % blue3_total_score)
-        print("Chains pulled: %d" % (CHAIN_PULL - blue_chain_pull))
-        print("======================")
-        print("Auto Paintings Scored: %d" % auto_paintings_scored)
-        print("TeleOp Paintings Scored: %d" % teleop_paintings_scored)
-        print("Auto Statues Scored: %d" % auto_statues_scored)
-        print("TeleOp Statues Scored: %d" % teleop_statues_scored)
+        print("Blue Auto Paintings Scored: %d" % blue_auto_paintings_scored)
+        print("Blue TeleOp Paintings Scored: %d" % blue_teleop_paintings_scored)
+        print("Blue Auto Statues Scored: %d" % blue_auto_statues_scored)
+        print("Blue TeleOp Statues Scored: %d" % blue_teleop_statues_scored)
         print("======================")
         print("Final score: R %d -- B %d" % (red_total_score, blue_total_score))
         print(win_message)
+
     # Tracks total points and wins
     elif sim_type == "a":
         global blue_all_wins
@@ -581,15 +649,17 @@ blue_period3_alarm_set = False
 alarm_config = {}
 
 auto_statues_scored = 0
+red_auto_statues_scored = 0
+blue_auto_statues_scored = 0
 teleop_statues_scored = 0
+red_teleop_statues_scored = 0
+blue_teleop_statues_scored = 0
 auto_paintings_scored = 0
+red_auto_paintings_scored = 0
+blue_auto_paintings_scored = 0
 teleop_paintings_scored = 0
-
-# Creates a weighted list of robot types to choose from randomly
-robot_sample = []
-for r_type in ROBOT_DISTRIBUTION.keys():
-    for i in range(ROBOT_DISTRIBUTION[r_type]):
-        robot_sample.append(r_type)
+red_teleop_paintings_scored = 0
+blue_teleop_paintings_scored = 0
 
 
 print("Robot types: ", end="")
