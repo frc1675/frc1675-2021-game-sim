@@ -19,22 +19,22 @@ def fire_alarms_initialize():
     alarm_period3_end = TELEOP_LENGTH - ALARM_1_PERIOD - ALARM_2_PERIOD - ALARM_3_PERIOD
 
     red_period1_alarm_start = numpy.random.randint(alarm_period1_end + DEADZONE, TELEOP_LENGTH+1)
-    red_period1_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
+    red_period1_active_alarms = list(numpy.random.choice(range(1, 4), 1, replace=False))
 
     red_period2_alarm_start = numpy.random.randint(alarm_period2_end + DEADZONE, alarm_period1_end - DEADZONE)
-    red_period2_active_alarms = numpy.random.choice(range(1, 4), 2, replace=False)
+    red_period2_active_alarms = list(numpy.random.choice(range(1, 4), 2, replace=False))
 
     red_period3_alarm_start = numpy.random.randint(alarm_period3_end + DEADZONE, alarm_period2_end - DEADZONE)
-    red_period3_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
+    red_period3_active_alarms = list(numpy.random.choice(range(1, 4), 1, replace=False))
 
     blue_period1_alarm_start = numpy.random.randint(alarm_period1_end + DEADZONE, TELEOP_LENGTH+1)
-    blue_period1_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
+    blue_period1_active_alarms = list(numpy.random.choice(range(1, 4), 1, replace=False))
 
     blue_period2_alarm_start = numpy.random.randint(alarm_period2_end + DEADZONE, alarm_period1_end - DEADZONE)
-    blue_period2_active_alarms = numpy.random.choice(range(1, 4), 2, replace=False)
+    blue_period2_active_alarms = list(numpy.random.choice(range(1, 4), 2, replace=False))
 
     blue_period3_alarm_start = numpy.random.randint(alarm_period3_end + DEADZONE, alarm_period2_end - DEADZONE)
-    blue_period3_active_alarms = numpy.random.choice(range(1, 4), 1, replace=False)
+    blue_period3_active_alarms = list(numpy.random.choice(range(1, 4), 1, replace=False))
 
     alarm_config = {
         "Red": {
@@ -80,6 +80,12 @@ def check_alarms(robot, time_left):
     global blue_period1_alarm_fail
     global blue_period2_alarm_fail
     global blue_period3_alarm_fail
+    global red_period1_alarm_set
+    global red_period2_alarm_set
+    global red_period3_alarm_set
+    global blue_period1_alarm_set
+    global blue_period2_alarm_set
+    global blue_period3_alarm_set
 
     alliance = ""
 
@@ -92,15 +98,18 @@ def check_alarms(robot, time_left):
     period3_alarm_start = alarm_config[alliance]["Period 3"]["Alarm Start"]
 
     if len(red_alarms_active) == 0 and alliance == "Red":
-        if period2_alarm_start < time_left <= period1_alarm_start and not red_period1_alarm_fail:
+        if period2_alarm_start < time_left <= period1_alarm_start and not red_period1_alarm_set:
+            red_period1_alarm_set = True
             red_alarms_active = alarm_config[alliance]["Period 1"]["Alarms Active"]
             red_alarm_end = time_left - ALARM_TIME
             print("Period 1 - Red Alarm", red_alarms_active, red_alarm_end)
-        elif period3_alarm_start < time_left <= period2_alarm_start and not red_period2_alarm_fail:
+        elif period3_alarm_start < time_left <= period2_alarm_start and not red_period2_alarm_set:
+            red_period2_alarm_set = True
             red_alarms_active = alarm_config[alliance]["Period 2"]["Alarms Active"]
             red_alarm_end = time_left - ALARM_TIME
             print("Period 2 - Red Alarm", red_alarms_active, red_alarm_end)
-        elif time_left <= period3_alarm_start and not red_period3_alarm_fail:
+        elif time_left <= period3_alarm_start and not red_period3_alarm_set:
+            red_period3_alarm_set = True
             red_alarms_active = alarm_config[alliance]["Period 3"]["Alarms Active"]
             red_alarm_end = time_left - ALARM_TIME
             print("Period 3 - Red Alarm", red_alarms_active, red_alarm_end)
@@ -108,21 +117,27 @@ def check_alarms(robot, time_left):
         red_alarms_active = []
         if time_left == period1_alarm_start - ALARM_TIME:
             red_period1_alarm_fail = True
+            print("~~~Red Period 1 Alarm - FAIL~~~")
         elif time_left == period2_alarm_start - ALARM_TIME:
             red_period2_alarm_fail = True
+            print("~~~Red Period 2 Alarm - FAIL~~~")
         elif time_left == period3_alarm_start - ALARM_TIME:
             red_period3_alarm_fail = True
+            print("~~~Red Period 3 Alarm - FAIL~~~")
 
     if len(blue_alarms_active) == 0 and alliance == "Blue":
-        if period2_alarm_start < time_left <= period1_alarm_start and not blue_period1_alarm_fail:
+        if period2_alarm_start < time_left <= period1_alarm_start and not blue_period1_alarm_set:
+            blue_period1_alarm_set = True
             blue_alarms_active = alarm_config[alliance]["Period 1"]["Alarms Active"]
             blue_alarm_end = time_left - ALARM_TIME
             print("Period 1 - Blue Alarm", blue_alarms_active, blue_alarm_end)
-        elif period3_alarm_start < time_left <= period2_alarm_start and not blue_period2_alarm_fail:
+        elif period3_alarm_start < time_left <= period2_alarm_start and not blue_period2_alarm_set:
+            blue_period2_alarm_set = True
             blue_alarms_active = alarm_config[alliance]["Period 2"]["Alarms Active"]
             blue_alarm_end = time_left - ALARM_TIME
             print("Period 2 - Blue Alarm", blue_alarms_active, blue_alarm_end)
-        elif time_left <= period3_alarm_start and not blue_period3_alarm_fail:
+        elif time_left <= period3_alarm_start and not blue_period3_alarm_set:
+            blue_period3_alarm_set = True
             blue_alarms_active = alarm_config[alliance]["Period 3"]["Alarms Active"]
             blue_alarm_end = time_left - ALARM_TIME
             print("Period 3 - Blue Alarm", blue_alarms_active, blue_alarm_end)
@@ -130,10 +145,13 @@ def check_alarms(robot, time_left):
         blue_alarms_active = []
         if time_left == period1_alarm_start - ALARM_TIME:
             blue_period1_alarm_fail = True
+            print("~~~Blue Period 1 Alarm - FAIL~~~")
         elif time_left == period2_alarm_start - ALARM_TIME:
             blue_period2_alarm_fail = True
+            print("~~~Blue Period 2 Alarm - FAIL~~~")
         elif time_left == period3_alarm_start - ALARM_TIME:
             blue_period3_alarm_fail = True
+            print("~~~Blue Period 3 Alarm - FAIL~~~")
 
 
 def check_reliability(robot_type, robot_task):
@@ -219,7 +237,7 @@ def task_selection(robot, robot_type, time_left):
     return task
 
 
-def robot_match_increment(robot, robot_type, robot_task, robot_task_end, time_left):
+def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_task_end, time_left):
     global low_paintings
     global mid_paintings
     global high_paintings
@@ -238,8 +256,46 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, time_le
 
     robot_score = 0
     task_success = False
+    current_task_priority = 0
+    fire_system_priority = 0
 
     check_alarms(robot, time_left)
+    if time_left == AUTO_LENGTH + TELEOP_LENGTH:
+        robot_task = task_selection(robot, robot_type, time_left)
+        task_cycle_time = generate_robot_data(robot_type, robot_task)
+        robot_task_end = time_left - task_cycle_time
+
+    if time_left > ENDGAME_LENGTH:
+        fire_system_priority = ROBOT_DICT[robot_type]["Fire System"]["TeleOp Priority"]
+        current_task_priority = ROBOT_DICT[robot_type][robot_task]["TeleOp Priority"]
+    elif time_left <= ENDGAME_LENGTH and robot_task is not None:
+        fire_system_priority = ROBOT_DICT[robot_type]["Fire System"]["Endgame Priority"]
+        current_task_priority = ROBOT_DICT[robot_type][robot_task]["Endgame Priority"]
+
+# give a robot the fire alarm task, while there are fire alarm tasks remaining
+    if robot.startswith("R") and len(red_alarms_active) > 0 and fire_system_priority <= current_task_priority:
+        red_alarms_active.pop()
+        alarm_task_time = generate_robot_data(robot_type, "Fire System")
+        alarm_task_end = time_left - alarm_task_time
+        robot_task_end -= alarm_task_time
+        print("--- Red Alarm Task Started: %s - Time (%s)" % (robot, alarm_task_time))
+    elif robot.startswith("B") and len(blue_alarms_active) > 0 and fire_system_priority <= current_task_priority:
+        blue_alarms_active.pop()
+        alarm_task_time = generate_robot_data(robot_type, "Fire System")
+        alarm_task_end = time_left - alarm_task_time
+        robot_task_end -= alarm_task_time
+        print("--- Blue Alarm Task Started: %s - Time (%s)" % (robot, alarm_task_time))
+
+# score successful alarm task
+    if alarm_task_end == time_left:
+        alarm_success = check_reliability(robot_type, "Fire System")
+        if alarm_success:
+            robot_score = SPRINKLER_BUTTON_VALUE
+        elif not alarm_success:
+            if robot.startswith("R"):
+                red_alarms_active.append(1)
+            elif robot.startswith("B"):
+                blue_alarms_active.append(1)
 
 # when robot completes a task, add appropriate score
     if robot_task_end == time_left:
@@ -273,8 +329,8 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, time_le
                 elif robot.startswith("B"):
                     blue_chain_pull += 1
 
-# at the beginning of the match, or when a robot completes a task, select a new task
-    if time_left == AUTO_LENGTH + TELEOP_LENGTH or robot_task_end == time_left:
+# when a robot completes a task, select a new task and decrement appropriate counters
+    if robot_task_end == time_left:
         if robot_task == "Chain Pull" and task_success:
             robot_task = None
             task_cycle_time = 0
@@ -306,10 +362,10 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, time_le
                     red_chain_pull -= 1
                 elif robot.startswith("B"):
                     blue_chain_pull -= 1
-                
+
         if sim_type == "s":     # Won't print out ten thousand lines when calculating average
             print("%s Task: %s - Time (%r)" % (robot, robot_task, task_cycle_time))
-    return robot_score, robot_task, robot_task_end
+    return robot_score, robot_task, robot_task_end, alarm_task_end
 
 
 def generate_match_data(r1, r2, r3, b1, b2, b3):
@@ -333,36 +389,42 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     red1_task = ""
     red1_task_end = 0
     red1_total_score = 0
+    red1_alarm_task_end = 0
 
     red2 = "Red 2"
     red2_type = r2
     red2_task = ""
     red2_task_end = 0
     red2_total_score = 0
+    red2_alarm_task_end = 0
 
     red3 = "Red 3"
     red3_type = r3
     red3_task = ""
     red3_task_end = 0
     red3_total_score = 0
+    red3_alarm_task_end = 0
 
     blue1 = "Blue 1"
     blue1_type = b1
     blue1_task = ""
     blue1_task_end = 0
     blue1_total_score = 0
+    blue1_alarm_task_end = 0
 
     blue2 = "Blue 2"
     blue2_type = b2
     blue2_task = ""
     blue2_task_end = 0
     blue2_total_score = 0
+    blue2_alarm_task_end = 0
 
     blue3 = "Blue 3"
     blue3_type = b3
     blue3_task = ""
     blue3_task_end = 0
     blue3_total_score = 0
+    blue3_alarm_task_end = 0
 
     if sim_type == "s":
         print(red1_type + ", " + red2_type + ", " + red3_type)
@@ -400,28 +462,30 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
 
     for time_left in range(AUTO_LENGTH + TELEOP_LENGTH, 0, -1):
         print(str(time_left) + "...")
-        red1_increment_score, red1_task, red1_task_end = \
-            robot_match_increment(red1, red1_type, red1_task, red1_task_end, time_left)
+
+        red1_increment_score, red1_task, red1_task_end, red1_alarm_task_end = \
+            robot_match_increment(red1, red1_type, red1_task, red1_task_end, red1_alarm_task_end,  time_left)
+
         red1_total_score += red1_increment_score
 
-        red2_increment_score, red2_task, red2_task_end = \
-            robot_match_increment(red2, red2_type, red2_task, red2_task_end, time_left)
+        red2_increment_score, red2_task, red2_task_end, red2_alarm_task_end = \
+            robot_match_increment(red2, red2_type, red2_task, red2_task_end, red2_alarm_task_end, time_left)
         red2_total_score += red2_increment_score
 
-        red3_increment_score, red3_task, red3_task_end = \
-            robot_match_increment(red3, red3_type, red3_task, red3_task_end, time_left)
+        red3_increment_score, red3_task, red3_task_end, red3_alarm_task_end = \
+            robot_match_increment(red3, red3_type, red3_task, red3_task_end, red3_alarm_task_end, time_left)
         red3_total_score += red3_increment_score
         
-        blue1_increment_score, blue1_task, blue1_task_end = \
-            robot_match_increment(blue1, blue1_type, blue1_task, blue1_task_end, time_left)
+        blue1_increment_score, blue1_task, blue1_task_end, blue1_alarm_task_end = \
+            robot_match_increment(blue1, blue1_type, blue1_task, blue1_task_end, blue1_alarm_task_end, time_left)
         blue1_total_score += blue1_increment_score
 
-        blue2_increment_score, blue2_task, blue2_task_end = \
-            robot_match_increment(blue2, blue2_type, blue2_task, blue2_task_end, time_left)
+        blue2_increment_score, blue2_task, blue2_task_end, blue2_alarm_task_end = \
+            robot_match_increment(blue2, blue2_type, blue2_task, blue2_task_end, blue2_alarm_task_end, time_left)
         blue2_total_score += blue2_increment_score
 
-        blue3_increment_score, blue3_task, blue3_task_end = \
-            robot_match_increment(blue3, blue3_type, blue3_task, blue3_task_end, time_left)
+        blue3_increment_score, blue3_task, blue3_task_end, blue3_alarm_task_end = \
+            robot_match_increment(blue3, blue3_type, blue3_task, blue3_task_end, blue3_alarm_task_end, time_left)
         blue3_total_score += blue3_increment_score
 
     # Results at the end of match
@@ -506,6 +570,13 @@ red_period3_alarm_fail = False
 blue_period1_alarm_fail = False
 blue_period2_alarm_fail = False
 blue_period3_alarm_fail = False
+
+red_period1_alarm_set = False
+red_period2_alarm_set = False
+red_period3_alarm_set = False
+blue_period1_alarm_set = False
+blue_period2_alarm_set = False
+blue_period3_alarm_set = False
 
 alarm_config = {}
 
