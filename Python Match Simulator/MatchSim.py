@@ -137,67 +137,81 @@ def check_alarms(robot, time_left):
             red_period1_alarm_set = True
             red_alarms_active = alarm_config[alliance]["Period 1"]["Alarms Active"]
             red_alarm_end = time_left - ALARM_TIME
-            print("Period 1 - Red Alarm", red_alarms_active, red_alarm_end)
+            if sim_type == "s":
+                print("Period 1 - Red Alarm", red_alarms_active, red_alarm_end)
         elif period3_alarm_start < time_left <= period2_alarm_start and not red_period2_alarm_set:
             red_period2_alarm_set = True
             red_alarms_active = alarm_config[alliance]["Period 2"]["Alarms Active"]
             red_alarm_end = time_left - ALARM_TIME
-            print("Period 2 - Red Alarm", red_alarms_active, red_alarm_end)
+            if sim_type == "s":
+                print("Period 2 - Red Alarm", red_alarms_active, red_alarm_end)
         elif time_left <= period3_alarm_start and not red_period3_alarm_set:
             red_period3_alarm_set = True
             red_alarms_active = alarm_config[alliance]["Period 3"]["Alarms Active"]
             red_alarm_end = time_left - ALARM_TIME
-            print("Period 3 - Red Alarm", red_alarms_active, red_alarm_end)
+            if sim_type == "s":
+                print("Period 3 - Red Alarm", red_alarms_active, red_alarm_end)
     if time_left == red_alarm_end and alliance == "Red" and len(red_alarms_active) != 0:
         red_alarms_active = []
         if time_left == period1_alarm_start - ALARM_TIME:
             red_period1_alarm_fail = True
-            print("~~~Red Period 1 Alarm - FAIL~~~")
+            if sim_type == "s":
+                print("~~~Red Period 1 Alarm - FAIL~~~")
         elif time_left == period2_alarm_start - ALARM_TIME:
             red_period2_alarm_fail = True
-            print("~~~Red Period 2 Alarm - FAIL~~~")
+            if sim_type == "s":
+                print("~~~Red Period 2 Alarm - FAIL~~~")
         elif time_left == period3_alarm_start - ALARM_TIME:
             red_period3_alarm_fail = True
-            print("~~~Red Period 3 Alarm - FAIL~~~")
+            if sim_type == "s":
+                print("~~~Red Period 3 Alarm - FAIL~~~")
 
     if len(blue_alarms_active) == 0 and alliance == "Blue":
         if period2_alarm_start < time_left <= period1_alarm_start and not blue_period1_alarm_set:
             blue_period1_alarm_set = True
             blue_alarms_active = alarm_config[alliance]["Period 1"]["Alarms Active"]
             blue_alarm_end = time_left - ALARM_TIME
-            print("Period 1 - Blue Alarm", blue_alarms_active, blue_alarm_end)
+            if sim_type == "s":
+                print("Period 1 - Blue Alarm", blue_alarms_active, blue_alarm_end)
         elif period3_alarm_start < time_left <= period2_alarm_start and not blue_period2_alarm_set:
             blue_period2_alarm_set = True
             blue_alarms_active = alarm_config[alliance]["Period 2"]["Alarms Active"]
             blue_alarm_end = time_left - ALARM_TIME
-            print("Period 2 - Blue Alarm", blue_alarms_active, blue_alarm_end)
+            if sim_type == "s":
+                print("Period 2 - Blue Alarm", blue_alarms_active, blue_alarm_end)
         elif time_left <= period3_alarm_start and not blue_period3_alarm_set:
             blue_period3_alarm_set = True
             blue_alarms_active = alarm_config[alliance]["Period 3"]["Alarms Active"]
             blue_alarm_end = time_left - ALARM_TIME
-            print("Period 3 - Blue Alarm", blue_alarms_active, blue_alarm_end)
+            if sim_type == "s":
+                print("Period 3 - Blue Alarm", blue_alarms_active, blue_alarm_end)
     if time_left == blue_alarm_end and alliance == "Blue" and len(blue_alarms_active) != 0:
         blue_alarms_active = []
         if time_left == period1_alarm_start - ALARM_TIME:
             blue_period1_alarm_fail = True
-            print("~~~Blue Period 1 Alarm - FAIL~~~")
+            if sim_type == "s":
+                print("~~~Blue Period 1 Alarm - FAIL~~~")
         elif time_left == period2_alarm_start - ALARM_TIME:
             blue_period2_alarm_fail = True
-            print("~~~Blue Period 2 Alarm - FAIL~~~")
+            if sim_type == "s":
+                print("~~~Blue Period 2 Alarm - FAIL~~~")
         elif time_left == period3_alarm_start - ALARM_TIME:
             blue_period3_alarm_fail = True
-            print("~~~Blue Period 3 Alarm - FAIL~~~")
+            if sim_type == "s":
+                print("~~~Blue Period 3 Alarm - FAIL~~~")
 
 
 def check_reliability(robot_type, robot_task):
+    task_success = False
     reliability_roll = numpy.random.randint(0, 100+1)
-    task_reliability = ROBOT_DICT[robot_type][robot_task]["Reliability"]
-    if reliability_roll < task_reliability:
-        task_success = True
-    else:
-        task_success = False
-        if sim_type == "s":
-            print("Task Failed: %s" % robot_task)
+    if robot_task is not None:
+        task_reliability = ROBOT_DICT[robot_type][robot_task]["Reliability"]
+        if reliability_roll < task_reliability:
+            task_success = True
+        else:
+            task_success = False
+            if sim_type == "s":
+                print("Task Failed: %s" % robot_task)
     return task_success
 
 
@@ -246,6 +260,7 @@ def decrement_game_object_stock(robot, robot_task):
             red_chain_pull -= 1
         elif robot.startswith("B"):
             blue_chain_pull -= 1
+
 
 def task_selection(robot, robot_type, time_left):
     auto_priority = {
@@ -337,7 +352,6 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
     global blue_teleop_statues_scored
 
     robot_score = 0
-    task_success = False
     current_task_priority = 0
     fire_system_priority = 0
 
@@ -346,7 +360,7 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
         robot_task = task_selection(robot, robot_type, time_left)
         task_cycle_time = generate_robot_data(robot_type, robot_task)
         robot_task_end = time_left - task_cycle_time
-        decrement_game_object_stock(robot,robot_task)
+        decrement_game_object_stock(robot, robot_task)
 
 # check if hitting a sprinkler button is a higher priority than the current task
     if time_left > ENDGAME_LENGTH:
@@ -362,13 +376,15 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
         alarm_task_time = generate_robot_data(robot_type, "Fire System")
         alarm_task_end = time_left - alarm_task_time
         robot_task_end -= alarm_task_time
-        print("--- Red Alarm Task Started: %s - Time (%s)" % (robot, alarm_task_time))
+        if sim_type == "s":
+            print("--- Red Alarm Task Started: %s - Time (%s)" % (robot, alarm_task_time))
     elif robot.startswith("B") and len(blue_alarms_active) > 0 and fire_system_priority <= current_task_priority:
         blue_alarms_active.pop()
         alarm_task_time = generate_robot_data(robot_type, "Fire System")
         alarm_task_end = time_left - alarm_task_time
         robot_task_end -= alarm_task_time
-        print("--- Blue Alarm Task Started: %s - Time (%s)" % (robot, alarm_task_time))
+        if sim_type == "s":
+            print("--- Blue Alarm Task Started: %s - Time (%s)" % (robot, alarm_task_time))
 
 # score successful alarm task
     if alarm_task_end == time_left:
