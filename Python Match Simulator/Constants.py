@@ -29,6 +29,11 @@ HIGH_PAINTINGS = 32
 FLOOR_PAINTINGS = 0
 CHAIN_PULL = 1
 
+ROBOT_DISTRIBUTION = {
+    "GOD BOT": 10,
+    "OK BOT": 90
+}
+
 ROBOT_DICT = {
     "GOD BOT": {
         "Low Painting": {
