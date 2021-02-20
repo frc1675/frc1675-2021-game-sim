@@ -3,6 +3,8 @@ import math
 import random
 
 from Constants import *
+from RobotQuality import *
+from RobotStrategy import *
 
 
 def fire_alarms_initialize():
@@ -205,7 +207,7 @@ def check_reliability(robot_type, robot_task):
     task_success = False
     reliability_roll = numpy.random.randint(0, 100+1)
     if robot_task is not None:
-        task_reliability = ROBOT_DICT[robot_type][robot_task]["Reliability"]
+        task_reliability = robot_dict[robot_type][robot_task]["Reliability"]
         if reliability_roll < task_reliability:
             task_success = True
         else:
@@ -217,12 +219,84 @@ def check_reliability(robot_type, robot_task):
 
 def generate_robot_data(robot_type, robot_task):
 
-    task_cycle_key = ROBOT_DICT[robot_type][robot_task]["Cycle"]
-    task_cycle_sd_key = ROBOT_DICT[robot_type][robot_task]["Cycle_StdDev"]
+    task_cycle_key = robot_dict[robot_type][robot_task]["Cycle"]
+    task_cycle_sd_key = robot_dict[robot_type][robot_task]["Cycle_StdDev"]
     task_cycle_time = numpy.random.normal(task_cycle_key, task_cycle_sd_key)
     task_cycle_time = math.ceil(task_cycle_time)
 
     return task_cycle_time
+
+
+def add_robot_to_dict(dictionary, strategy, quality):
+    robot_type = quality + " " + strategy
+    print(robot_type)
+    dictionary.update(
+        {
+            robot_type: {
+                "Low Painting": {
+                    "Auto Priority": ROBOT_STRATEGY[strategy]["Low Painting"]["Auto Priority"],
+                    "TeleOp Priority": ROBOT_STRATEGY[strategy]["Low Painting"]["TeleOp Priority"],
+                    "Endgame Priority": ROBOT_STRATEGY[strategy]["Low Painting"]["Endgame Priority"],
+                    "Cycle": ROBOT_QUALITY[quality]["Low Painting"]["Cycle"],
+                    "Cycle_StdDev": ROBOT_QUALITY[quality]["Low Painting"]["Cycle_StdDev"],
+                    "Auto Reliability": ROBOT_QUALITY[quality]["Low Painting"]["Auto Reliability"],
+                    "Reliability": ROBOT_QUALITY[quality]["Low Painting"]["Reliability"]
+                },
+                "Mid Painting": {
+                    "Auto Priority": ROBOT_STRATEGY[strategy]["Mid Painting"]["Auto Priority"],
+                    "TeleOp Priority": ROBOT_STRATEGY[strategy]["Mid Painting"]["TeleOp Priority"],
+                    "Endgame Priority": ROBOT_STRATEGY[strategy]["Mid Painting"]["Endgame Priority"],
+                    "Cycle": ROBOT_QUALITY[quality]["Mid Painting"]["Cycle"],
+                    "Cycle_StdDev": ROBOT_QUALITY[quality]["Mid Painting"]["Cycle_StdDev"],
+                    "Auto Reliability": ROBOT_QUALITY[quality]["Mid Painting"]["Auto Reliability"],
+                    "Reliability": ROBOT_QUALITY[quality]["Mid Painting"]["Reliability"]
+                },
+                "High Painting": {
+                    "Auto Priority": ROBOT_STRATEGY[strategy]["High Painting"]["Auto Priority"],
+                    "TeleOp Priority": ROBOT_STRATEGY[strategy]["High Painting"]["TeleOp Priority"],
+                    "Endgame Priority": ROBOT_STRATEGY[strategy]["High Painting"]["Endgame Priority"],
+                    "Cycle": ROBOT_QUALITY[quality]["High Painting"]["Cycle"],
+                    "Cycle_StdDev": ROBOT_QUALITY[quality]["High Painting"]["Cycle_StdDev"],
+                    "Auto Reliability": ROBOT_QUALITY[quality]["High Painting"]["Auto Reliability"],
+                    "Reliability": ROBOT_QUALITY[quality]["High Painting"]["Reliability"]
+                },
+                "Floor Painting": {
+                    "TeleOp Priority": ROBOT_STRATEGY[strategy]["Floor Painting"]["TeleOp Priority"],
+                    "Endgame Priority": ROBOT_STRATEGY[strategy]["Floor Painting"]["Endgame Priority"],
+                    "Cycle": ROBOT_QUALITY[quality]["Floor Painting"]["Cycle"],
+                    "Cycle_StdDev": ROBOT_QUALITY[quality]["Floor Painting"]["Cycle_StdDev"],
+                    "Reliability": ROBOT_QUALITY[quality]["Floor Painting"]["Reliability"]
+                },
+                "Near Statue": {
+                    "Auto Priority": ROBOT_STRATEGY[strategy]["Near Statue"]["Auto Priority"],
+                    "TeleOp Priority": ROBOT_STRATEGY[strategy]["Near Statue"]["Auto Priority"],
+                    "Cycle": ROBOT_QUALITY[quality]["Near Statue"]["Cycle"],
+                    "Cycle_StdDev": ROBOT_QUALITY[quality]["Near Statue"]["Cycle_StdDev"],
+                    "Auto Reliability": ROBOT_QUALITY[quality]["Near Statue"]["Auto Reliability"],
+                    "Reliability": ROBOT_QUALITY[quality]["Near Statue"]["Reliability"]
+                },
+                "Far Statue": {
+                    "TeleOp Priority": ROBOT_STRATEGY[strategy]["Far Statue"]["TeleOp Priority"],
+                    "Cycle": ROBOT_QUALITY[quality]["Far Statue"]["Cycle"],
+                    "Cycle_StdDev": ROBOT_QUALITY[quality]["Far Statue"]["Cycle_StdDev"],
+                    "Reliability": ROBOT_QUALITY[quality]["Far Statue"]["Reliability"]
+                },
+                "Fire System": {
+                    "TeleOp Priority": ROBOT_STRATEGY[strategy]["Fire System"]["TeleOp Priority"],
+                    "Endgame Priority": ROBOT_STRATEGY[strategy]["Fire System"]["Endgame Priority"],
+                    "Cycle": ROBOT_QUALITY[quality]["Fire System"]["Cycle"],
+                    "Cycle_StdDev": ROBOT_QUALITY[quality]["Fire System"]["Cycle_StdDev"],
+                    "Reliability": ROBOT_QUALITY[quality]["Fire System"]["Reliability"]
+                },
+                "Chain Pull": {
+                    "Endgame Priority": ROBOT_STRATEGY[strategy]["Chain Pull"]["Endgame Priority"],
+                    "Cycle": ROBOT_QUALITY[quality]["Chain Pull"]["Cycle"],
+                    "Cycle_StdDev": ROBOT_QUALITY[quality]["Chain Pull"]["Cycle_StdDev"],
+                    "Reliability": ROBOT_QUALITY[quality]["Chain Pull"]["Reliability"],
+                }
+            }
+        }
+    )
 
 
 def decrement_game_object_stock(robot, robot_task):
@@ -264,25 +338,25 @@ def decrement_game_object_stock(robot, robot_task):
 
 def task_selection(robot, robot_type, time_left):
     auto_priority = {
-        "Low Painting": ROBOT_DICT[robot_type]["Low Painting"]["Auto Priority"],
-        "Mid Painting": ROBOT_DICT[robot_type]["Mid Painting"]["Auto Priority"],
-        "High Painting": ROBOT_DICT[robot_type]["High Painting"]["Auto Priority"],
-        "Near Statue": ROBOT_DICT[robot_type]["Near Statue"]["Auto Priority"]
+        "Low Painting": robot_dict[robot_type]["Low Painting"]["Auto Priority"],
+        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Auto Priority"],
+        "High Painting": robot_dict[robot_type]["High Painting"]["Auto Priority"],
+        "Near Statue": robot_dict[robot_type]["Near Statue"]["Auto Priority"]
     }
     teleop_priority = {
-        "Low Painting": ROBOT_DICT[robot_type]["Low Painting"]["TeleOp Priority"],
-        "Mid Painting": ROBOT_DICT[robot_type]["Mid Painting"]["TeleOp Priority"],
-        "High Painting": ROBOT_DICT[robot_type]["High Painting"]["TeleOp Priority"],
-        "Floor Painting": ROBOT_DICT[robot_type]["Floor Painting"]["TeleOp Priority"],
-        "Near Statue": ROBOT_DICT[robot_type]["Near Statue"]["TeleOp Priority"],
-        "Far Statue": ROBOT_DICT[robot_type]["Far Statue"]["TeleOp Priority"]
+        "Low Painting": robot_dict[robot_type]["Low Painting"]["TeleOp Priority"],
+        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["TeleOp Priority"],
+        "High Painting": robot_dict[robot_type]["High Painting"]["TeleOp Priority"],
+        "Floor Painting": robot_dict[robot_type]["Floor Painting"]["TeleOp Priority"],
+        "Near Statue": robot_dict[robot_type]["Near Statue"]["TeleOp Priority"],
+        "Far Statue": robot_dict[robot_type]["Far Statue"]["TeleOp Priority"]
     }
     endgame_priority = {
-        "Low Painting": ROBOT_DICT[robot_type]["Low Painting"]["Endgame Priority"],
-        "Mid Painting": ROBOT_DICT[robot_type]["Mid Painting"]["Endgame Priority"],
-        "High Painting": ROBOT_DICT[robot_type]["High Painting"]["Endgame Priority"],
-        "Floor Painting": ROBOT_DICT[robot_type]["High Painting"]["Endgame Priority"],
-        "Chain Pull": ROBOT_DICT[robot_type]["Chain Pull"]["Endgame Priority"]
+        "Low Painting": robot_dict[robot_type]["Low Painting"]["Endgame Priority"],
+        "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Endgame Priority"],
+        "High Painting": robot_dict[robot_type]["High Painting"]["Endgame Priority"],
+        "Floor Painting": robot_dict[robot_type]["High Painting"]["Endgame Priority"],
+        "Chain Pull": robot_dict[robot_type]["Chain Pull"]["Endgame Priority"]
     }
     if low_paintings == 0:
         auto_priority.pop("Low Painting")
@@ -360,11 +434,11 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
 
 # check if hitting a sprinkler button is a higher priority than the current task
     if time_left > ENDGAME_LENGTH:
-        fire_system_priority = ROBOT_DICT[robot_type]["Fire System"]["TeleOp Priority"]
-        current_task_priority = ROBOT_DICT[robot_type][robot_task]["TeleOp Priority"]
+        fire_system_priority = robot_dict[robot_type]["Fire System"]["TeleOp Priority"]
+        current_task_priority = robot_dict[robot_type][robot_task]["TeleOp Priority"]
     elif time_left <= ENDGAME_LENGTH and robot_task is not None:
-        fire_system_priority = ROBOT_DICT[robot_type]["Fire System"]["Endgame Priority"]
-        current_task_priority = ROBOT_DICT[robot_type][robot_task]["Endgame Priority"]
+        fire_system_priority = robot_dict[robot_type]["Fire System"]["Endgame Priority"]
+        current_task_priority = robot_dict[robot_type][robot_task]["Endgame Priority"]
 
 # give a robot the fire alarm task, while there are fire alarm tasks remaining
     if robot.startswith("R") and len(red_alarms_active) > 0 and fire_system_priority <= current_task_priority:
@@ -459,17 +533,17 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
 def generate_match_data(r1, r2, r3, b1, b2, b3):
     # Select random robots
     if r1 == "R":
-        r1 = random.choice(list(ROBOT_DICT.keys()))
+        r1 = random.choice(list(robot_dict.keys()))
     if r2 == "R":
-        r2 = random.choice(list(ROBOT_DICT.keys()))
+        r2 = random.choice(list(robot_dict.keys()))
     if r3 == "R":
-        r3 = random.choice(list(ROBOT_DICT.keys()))
+        r3 = random.choice(list(robot_dict.keys()))
     if b1 == "R":
-        b1 = random.choice(list(ROBOT_DICT.keys()))
+        b1 = random.choice(list(robot_dict.keys()))
     if b2 == "R":
-        b2 = random.choice(list(ROBOT_DICT.keys()))
+        b2 = random.choice(list(robot_dict.keys()))
     if b3 == "R":
-        b3 = random.choice(list(ROBOT_DICT.keys()))
+        b3 = random.choice(list(robot_dict.keys()))
 
     # Create the six robots
     red1 = "Red 1"
@@ -670,6 +744,8 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
 
 '''============================PROGRAM STARTS HERE================================'''
 
+robot_dict = {}
+
 red_near_statues = NEAR_STATUES
 red_far_statues = FAR_STATUES
 blue_near_statues = NEAR_STATUES
@@ -712,17 +788,44 @@ red_teleop_paintings_scored = 0
 blue_teleop_paintings_scored = 0
 
 
-print("Robot types: ", end="")
-for r_type in ROBOT_DICT.keys():
-    print(r_type, end=", ")
+print("Robot Strategies: ", end="")
+for r_strategy in ROBOT_STRATEGY.keys():
+    print(r_strategy, end=", ")
+print("or [R]andom")
+print("Robot Quality Options: ", end="")
+for r_quality in ROBOT_QUALITY.keys():
+    print(r_quality, end=", ")
 print("or [R]andom")
 
-r1_type = input("Red 1 type: ").upper()
-r2_type = input("Red 2 type: ").upper()
-r3_type = input("Red 3 type: ").upper()
-b1_type = input("Blue 1 type: ").upper()
-b2_type = input("Blue 2 type: ").upper()
-b3_type = input("Blue 3 type: ").upper()
+r1_strategy = input("Red 1 strategy: ").upper()
+r1_quality = input("Red 1 quality: ").upper()
+r1_type = r1_quality + " " + r1_strategy
+add_robot_to_dict(robot_dict, r1_strategy, r1_quality)
+
+r2_strategy = input("Red 2 strategy: ").upper()
+r2_quality = input("Red 2 quality: ").upper()
+r2_type = r2_quality + " " + r2_strategy
+add_robot_to_dict(robot_dict, r2_strategy, r2_quality)
+
+r3_strategy = input("Red 3 strategy: ").upper()
+r3_quality = input("Red 3 quality: ").upper()
+r3_type = r3_quality + " " + r3_strategy
+add_robot_to_dict(robot_dict, r3_strategy, r3_quality)
+
+b1_strategy = input("Blue 1 strategy: ").upper()
+b1_quality = input("Blue 1 quality: ").upper()
+b1_type = b1_quality + " " + b1_strategy
+add_robot_to_dict(robot_dict, b1_strategy, b1_quality)
+
+b2_strategy = input("Blue 2 strategy: ").upper()
+b2_quality = input("Blue 2 quality: ").upper()
+b2_type = b2_quality + " " + b2_strategy
+add_robot_to_dict(robot_dict, b2_strategy, b2_quality)
+
+b3_strategy = input("Blue 3 strategy: ").upper()
+b3_quality = input("Blue 3 quality: ").upper()
+b3_type = b3_quality + " " + b3_strategy
+add_robot_to_dict(robot_dict, b3_strategy, b3_quality)
 
 sim_type = input("[S]ingle simulation or calculate [A]verage scores ").casefold()
 # Single: detailed description of one simulated game
