@@ -798,32 +798,56 @@ for r_quality in ROBOT_QUALITY.keys():
 print("or [R]andom")
 
 r1_strategy = input("Red 1 strategy: ").upper()
+if r1_strategy == "R":
+    r1_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
 r1_quality = input("Red 1 quality: ").upper()
+if r1_quality == "R":
+    r1_quality = random.choice(list(ROBOT_QUALITY.keys()))
 r1_type = r1_quality + " " + r1_strategy
 add_robot_to_dict(robot_dict, r1_strategy, r1_quality)
 
 r2_strategy = input("Red 2 strategy: ").upper()
+if r2_strategy == "R":
+    r2_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
 r2_quality = input("Red 2 quality: ").upper()
+if r2_quality == "R":
+    r2_quality = random.choice(list(ROBOT_QUALITY.keys()))
 r2_type = r2_quality + " " + r2_strategy
 add_robot_to_dict(robot_dict, r2_strategy, r2_quality)
 
 r3_strategy = input("Red 3 strategy: ").upper()
+if r3_strategy == "R":
+    r3_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
 r3_quality = input("Red 3 quality: ").upper()
+if r3_quality == "R":
+    r3_quality = random.choice(list(ROBOT_QUALITY.keys()))
 r3_type = r3_quality + " " + r3_strategy
 add_robot_to_dict(robot_dict, r3_strategy, r3_quality)
 
 b1_strategy = input("Blue 1 strategy: ").upper()
+if b1_strategy == "R":
+    b1_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
 b1_quality = input("Blue 1 quality: ").upper()
+if b1_quality == "R":
+    b1_quality = random.choice(list(ROBOT_QUALITY.keys()))
 b1_type = b1_quality + " " + b1_strategy
 add_robot_to_dict(robot_dict, b1_strategy, b1_quality)
 
 b2_strategy = input("Blue 2 strategy: ").upper()
+if b2_strategy == "R":
+    b2_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
 b2_quality = input("Blue 2 quality: ").upper()
+if b2_quality == "R":
+    b2_quality = random.choice(list(ROBOT_QUALITY.keys()))
 b2_type = b2_quality + " " + b2_strategy
 add_robot_to_dict(robot_dict, b2_strategy, b2_quality)
 
 b3_strategy = input("Blue 3 strategy: ").upper()
+if b3_strategy == "R":
+    b3_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
 b3_quality = input("Blue 3 quality: ").upper()
+if b3_quality == "R":
+    b3_quality = random.choice(list(ROBOT_QUALITY.keys()))
 b3_type = b3_quality + " " + b3_strategy
 add_robot_to_dict(robot_dict, b3_strategy, b3_quality)
 
