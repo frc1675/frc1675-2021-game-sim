@@ -270,6 +270,7 @@ def add_robot_to_dict(dictionary, strategy, quality):
                 "Near Statue": {
                     "Auto Priority": ROBOT_STRATEGY[strategy]["Near Statue"]["Auto Priority"],
                     "TeleOp Priority": ROBOT_STRATEGY[strategy]["Near Statue"]["Auto Priority"],
+                    "Endgame Priority": ROBOT_STRATEGY[strategy]["Far Statue"]["Endgame Priority"],
                     "Cycle": ROBOT_QUALITY[quality]["Near Statue"]["Cycle"],
                     "Cycle_StdDev": ROBOT_QUALITY[quality]["Near Statue"]["Cycle_StdDev"],
                     "Auto Reliability": ROBOT_QUALITY[quality]["Near Statue"]["Auto Reliability"],
@@ -277,6 +278,7 @@ def add_robot_to_dict(dictionary, strategy, quality):
                 },
                 "Far Statue": {
                     "TeleOp Priority": ROBOT_STRATEGY[strategy]["Far Statue"]["TeleOp Priority"],
+                    "Endgame Priority": ROBOT_STRATEGY[strategy]["Far Statue"]["Endgame Priority"],
                     "Cycle": ROBOT_QUALITY[quality]["Far Statue"]["Cycle"],
                     "Cycle_StdDev": ROBOT_QUALITY[quality]["Far Statue"]["Cycle_StdDev"],
                     "Reliability": ROBOT_QUALITY[quality]["Far Statue"]["Reliability"]
@@ -742,6 +744,15 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
         blue_all_rp += blue_alliance_rp
 
 
+def create_randomizer_list(distribution_dict):
+    randomizer_list = []
+    for key in distribution_dict:
+        loops = distribution_dict[key]
+        for j in range(loops):
+            randomizer_list.append(key)
+    return randomizer_list
+
+
 '''============================PROGRAM STARTS HERE================================'''
 
 robot_dict = {}
@@ -787,6 +798,8 @@ blue_auto_paintings_scored = 0
 red_teleop_paintings_scored = 0
 blue_teleop_paintings_scored = 0
 
+robot_strategy_distribution = create_randomizer_list(ROBOT_STRATEGY_DISTRIBUTION)
+robot_quality_distribution = create_randomizer_list(ROBOT_QUALITY_DISTRIBUTION)
 
 print("Robot Strategies: ", end="")
 for r_strategy in ROBOT_STRATEGY.keys():
@@ -799,55 +812,55 @@ print("or [R]andom")
 
 r1_strategy = input("Red 1 strategy: ").upper()
 if r1_strategy == "R":
-    r1_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
+    r1_strategy = random.choice(list(robot_strategy_distribution))
 r1_quality = input("Red 1 quality: ").upper()
 if r1_quality == "R":
-    r1_quality = random.choice(list(ROBOT_QUALITY.keys()))
+    r1_quality = random.choice(list(robot_quality_distribution))
 r1_type = r1_quality + " " + r1_strategy
 add_robot_to_dict(robot_dict, r1_strategy, r1_quality)
 
 r2_strategy = input("Red 2 strategy: ").upper()
 if r2_strategy == "R":
-    r2_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
+    r2_strategy = random.choice(list(robot_strategy_distribution))
 r2_quality = input("Red 2 quality: ").upper()
 if r2_quality == "R":
-    r2_quality = random.choice(list(ROBOT_QUALITY.keys()))
+    r2_quality = random.choice(list(robot_quality_distribution))
 r2_type = r2_quality + " " + r2_strategy
 add_robot_to_dict(robot_dict, r2_strategy, r2_quality)
 
 r3_strategy = input("Red 3 strategy: ").upper()
 if r3_strategy == "R":
-    r3_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
+    r3_strategy = random.choice(list(robot_strategy_distribution))
 r3_quality = input("Red 3 quality: ").upper()
 if r3_quality == "R":
-    r3_quality = random.choice(list(ROBOT_QUALITY.keys()))
+    r3_quality = random.choice(list(robot_quality_distribution))
 r3_type = r3_quality + " " + r3_strategy
 add_robot_to_dict(robot_dict, r3_strategy, r3_quality)
 
 b1_strategy = input("Blue 1 strategy: ").upper()
 if b1_strategy == "R":
-    b1_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
+    b1_strategy = random.choice(list(robot_strategy_distribution))
 b1_quality = input("Blue 1 quality: ").upper()
 if b1_quality == "R":
-    b1_quality = random.choice(list(ROBOT_QUALITY.keys()))
+    b1_quality = random.choice(list(robot_quality_distribution))
 b1_type = b1_quality + " " + b1_strategy
 add_robot_to_dict(robot_dict, b1_strategy, b1_quality)
 
 b2_strategy = input("Blue 2 strategy: ").upper()
 if b2_strategy == "R":
-    b2_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
+    b2_strategy = random.choice(list(robot_strategy_distribution))
 b2_quality = input("Blue 2 quality: ").upper()
 if b2_quality == "R":
-    b2_quality = random.choice(list(ROBOT_QUALITY.keys()))
+    b2_quality = random.choice(list(robot_quality_distribution))
 b2_type = b2_quality + " " + b2_strategy
 add_robot_to_dict(robot_dict, b2_strategy, b2_quality)
 
 b3_strategy = input("Blue 3 strategy: ").upper()
 if b3_strategy == "R":
-    b3_strategy = random.choice(list(ROBOT_STRATEGY.keys()))
+    b3_strategy = random.choice(list(robot_strategy_distribution))
 b3_quality = input("Blue 3 quality: ").upper()
 if b3_quality == "R":
-    b3_quality = random.choice(list(ROBOT_QUALITY.keys()))
+    b3_quality = random.choice(list(robot_quality_distribution))
 b3_type = b3_quality + " " + b3_strategy
 add_robot_to_dict(robot_dict, b3_strategy, b3_quality)
 
