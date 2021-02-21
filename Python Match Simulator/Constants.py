@@ -38,8 +38,10 @@ CHAIN_PULL = 2
 
 ROBOT_QUALITY_DISTRIBUTION = {
     "BEST": 2,
-    "AVERAGE": 35,
-    "BAD": 10
+    "GOOD": 30,
+    "AVERAGE": 45,
+    "BAD": 20,
+    "DEAD": 50
 }
 
 ROBOT_STRATEGY_DISTRIBUTION = {
