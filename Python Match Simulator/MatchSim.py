@@ -219,6 +219,10 @@ def check_reliability(robot_type, robot_task):
 
 def generate_robot_data(robot_type, robot_task):
 
+    # If no task is defined cycle time is 0
+    if robot_task == None:
+        return 0
+
     task_cycle_key = robot_dict[robot_type][robot_task]["Cycle"]
     task_cycle_sd_key = robot_dict[robot_type][robot_task]["Cycle_StdDev"]
     task_cycle_time = numpy.random.normal(task_cycle_key, task_cycle_sd_key)
@@ -229,7 +233,6 @@ def generate_robot_data(robot_type, robot_task):
 
 def add_robot_to_dict(dictionary, strategy, quality):
     robot_type = quality + " " + strategy
-    print(robot_type)
     dictionary.update(
         {
             robot_type: {
@@ -339,6 +342,11 @@ def decrement_game_object_stock(robot, robot_task):
 
 
 def task_selection(robot, robot_type, time_left):
+
+    # Dead robots are not capable of any task
+    if "DEAD" in robot_type:
+        return None
+
     auto_priority = {
         "Low Painting": robot_dict[robot_type]["Low Painting"]["Auto Priority"],
         "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Auto Priority"],
@@ -435,7 +443,7 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
         decrement_game_object_stock(robot, robot_task)
 
 # check if hitting a sprinkler button is a higher priority than the current task
-    if time_left > ENDGAME_LENGTH:
+    if time_left > ENDGAME_LENGTH and robot_task is not None:
         fire_system_priority = robot_dict[robot_type]["Fire System"]["TeleOp Priority"]
         current_task_priority = robot_dict[robot_type][robot_task]["TeleOp Priority"]
     elif time_left <= ENDGAME_LENGTH and robot_task is not None:
@@ -533,20 +541,6 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
 
 
 def generate_match_data(r1, r2, r3, b1, b2, b3):
-    # Select random robots
-    if r1 == "R":
-        r1 = random.choice(list(robot_dict.keys()))
-    if r2 == "R":
-        r2 = random.choice(list(robot_dict.keys()))
-    if r3 == "R":
-        r3 = random.choice(list(robot_dict.keys()))
-    if b1 == "R":
-        b1 = random.choice(list(robot_dict.keys()))
-    if b2 == "R":
-        b2 = random.choice(list(robot_dict.keys()))
-    if b3 == "R":
-        b3 = random.choice(list(robot_dict.keys()))
-
     # Create the six robots
     red1 = "Red 1"
     red1_type = r1
@@ -589,9 +583,6 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
     blue3_task_end = 0
     blue3_total_score = 0
     blue3_alarm_task_end = 0
-
-    if sim_type == "s":
-        print(red1_type+", "+red2_type+", "+red3_type+" versus "+blue1_type+", "+blue2_type+", "+blue3_type)
 
     # Reset the field
     global low_paintings
@@ -752,6 +743,17 @@ def create_randomizer_list(distribution_dict):
             randomizer_list.append(key)
     return randomizer_list
 
+def get_robot_type(input_strategy, input_quality):
+    strategy = input_strategy
+    if input_strategy == "R":
+        strategy = random.choice(list(robot_strategy_distribution))
+    quality = input_quality
+    if input_quality == "R":
+        quality = random.choice(list(robot_quality_distribution))
+    robot_type = quality + " " + strategy
+    add_robot_to_dict(robot_dict, strategy, quality)
+    return robot_type
+
 
 '''============================PROGRAM STARTS HERE================================'''
 
@@ -811,96 +813,76 @@ for r_quality in ROBOT_QUALITY.keys():
 print("or [R]andom")
 
 r1_strategy = input("Red 1 strategy: ").upper()
-if r1_strategy == "R":
-    r1_strategy = random.choice(list(robot_strategy_distribution))
 r1_quality = input("Red 1 quality: ").upper()
-if r1_quality == "R":
-    r1_quality = random.choice(list(robot_quality_distribution))
-r1_type = r1_quality + " " + r1_strategy
-add_robot_to_dict(robot_dict, r1_strategy, r1_quality)
-
 r2_strategy = input("Red 2 strategy: ").upper()
-if r2_strategy == "R":
-    r2_strategy = random.choice(list(robot_strategy_distribution))
 r2_quality = input("Red 2 quality: ").upper()
-if r2_quality == "R":
-    r2_quality = random.choice(list(robot_quality_distribution))
-r2_type = r2_quality + " " + r2_strategy
-add_robot_to_dict(robot_dict, r2_strategy, r2_quality)
-
 r3_strategy = input("Red 3 strategy: ").upper()
-if r3_strategy == "R":
-    r3_strategy = random.choice(list(robot_strategy_distribution))
 r3_quality = input("Red 3 quality: ").upper()
-if r3_quality == "R":
-    r3_quality = random.choice(list(robot_quality_distribution))
-r3_type = r3_quality + " " + r3_strategy
-add_robot_to_dict(robot_dict, r3_strategy, r3_quality)
-
 b1_strategy = input("Blue 1 strategy: ").upper()
-if b1_strategy == "R":
-    b1_strategy = random.choice(list(robot_strategy_distribution))
 b1_quality = input("Blue 1 quality: ").upper()
-if b1_quality == "R":
-    b1_quality = random.choice(list(robot_quality_distribution))
-b1_type = b1_quality + " " + b1_strategy
-add_robot_to_dict(robot_dict, b1_strategy, b1_quality)
-
 b2_strategy = input("Blue 2 strategy: ").upper()
-if b2_strategy == "R":
-    b2_strategy = random.choice(list(robot_strategy_distribution))
 b2_quality = input("Blue 2 quality: ").upper()
-if b2_quality == "R":
-    b2_quality = random.choice(list(robot_quality_distribution))
-b2_type = b2_quality + " " + b2_strategy
-add_robot_to_dict(robot_dict, b2_strategy, b2_quality)
-
 b3_strategy = input("Blue 3 strategy: ").upper()
-if b3_strategy == "R":
-    b3_strategy = random.choice(list(robot_strategy_distribution))
 b3_quality = input("Blue 3 quality: ").upper()
-if b3_quality == "R":
-    b3_quality = random.choice(list(robot_quality_distribution))
-b3_type = b3_quality + " " + b3_strategy
-add_robot_to_dict(robot_dict, b3_strategy, b3_quality)
 
-sim_type = input("[S]ingle simulation or calculate [A]verage scores ").casefold()
 # Single: detailed description of one simulated game
-# Average: runs 10,000 games with the same robots, calculates
+# Average: runs SIM_REPS games with the same robots, calculates
 # average scores and win rates
+sim_type = input("[S]ingle simulation or calculate [A]verage scores ").casefold()
+sim_reps = SIM_REPS
 if sim_type == "s":
-    generate_match_data(r1_type, r2_type, r3_type, b1_type, b2_type, b3_type)
-elif sim_type == "a":
-    red_all_wins = 0
-    blue_all_wins = 0
-    all_ties = 0
+    sim_reps = 1
 
-    red1_all_score = 0
-    red2_all_score = 0
-    red3_all_score = 0
-    red_all_rp = 0
+red_all_wins = 0
+blue_all_wins = 0
+all_ties = 0
+red1_all_score = 0
+red2_all_score = 0
+red3_all_score = 0
+red_all_rp = 0
+blue1_all_score = 0
+blue2_all_score = 0
+blue3_all_score = 0
+blue_all_rp = 0
 
-    blue1_all_score = 0
-    blue2_all_score = 0
-    blue3_all_score = 0
-    blue_all_rp = 0
-
-    for i in range(SIM_REPS):
-        generate_match_data(r1_type, r2_type, r3_type, b1_type, b2_type, b3_type)
+for i in range(sim_reps):
     
+    r1_type = get_robot_type(r1_strategy, r1_quality)
+    r2_type = get_robot_type(r2_strategy, r2_quality)
+    r3_type = get_robot_type(r3_strategy, r3_quality)
+    b1_type = get_robot_type(b1_strategy, b1_quality)
+    b2_type = get_robot_type(b2_strategy, b2_quality)
+    b3_type = get_robot_type(b3_strategy, b3_quality)    
+    
+    if sim_type == "s":
+        print("")
+        print("Robot Selections")
+        print("")
+        print("R1: "+r1_type)
+        print("R2: "+r2_type)
+        print("R3: "+r3_type)
+        print("VS")
+        print("B1: "+b1_type)
+        print("B2: "+b2_type)
+        print("B3: "+b3_type)
+        print("")
+
+    generate_match_data(r1_type, r2_type, r3_type, b1_type, b2_type, b3_type)
+
+if sim_type == "a":  
     print("=====================")
-    print("=======RESULTS=======")
+    print("=====AVG RESULTS=====")
     print("=====================")
-    print("Red win rate: %f" % (red_all_wins/SIM_REPS))
-    print("Blue win rate: %f" % (blue_all_wins/SIM_REPS))
-    print("Tie rate: %f" % (all_ties/SIM_REPS))
+    print("Red win rate: %f" % (red_all_wins/sim_reps))
+    print("Blue win rate: %f" % (blue_all_wins/sim_reps))
+    print("Tie rate: %f" % (all_ties/sim_reps))
     print("=====================")
-    print("Red 1 average points: %f" % (red1_all_score/SIM_REPS))
-    print("Red 2 average points: %f" % (red2_all_score/SIM_REPS))
-    print("Red 3 average points: %f" % (red3_all_score/SIM_REPS))
-    print("Blue 1 average points: %f" % (blue1_all_score/SIM_REPS))
-    print("Blue 2 average points: %f" % (blue2_all_score/SIM_REPS))
-    print("Blue 3 average points: %f" % (blue3_all_score/SIM_REPS))
+    print("Red 1 average points: %f" % (red1_all_score/sim_reps))
+    print("Red 2 average points: %f" % (red2_all_score/sim_reps))
+    print("Red 3 average points: %f" % (red3_all_score/sim_reps))
+    print("Blue 1 average points: %f" % (blue1_all_score/sim_reps))
+    print("Blue 2 average points: %f" % (blue2_all_score/sim_reps))
+    print("Blue 3 average points: %f" % (blue3_all_score/sim_reps))
     print("=====================")
-    print("Red Alliance Average RP: %f" % (red_all_rp/SIM_REPS))
-    print("Blue Alliance Average RP: %f" % (blue_all_rp/SIM_REPS))
+    print("Red Alliance Average RP: %f" % (red_all_rp/sim_reps))
+    print("Blue Alliance Average RP: %f" % (blue_all_rp/sim_reps))

@@ -45,6 +45,52 @@ ROBOT_QUALITY = {
             "Reliability": 92
         }
     },
+    "GOOD": {
+        "Low Painting": {
+            "Cycle": 13,
+            "Cycle_StdDev": 1.2,
+            "Auto Reliability": 82,
+            "Reliability": 90
+        },
+        "Mid Painting": {
+            "Cycle": 15,
+            "Cycle_StdDev": 1.4,
+            "Auto Reliability": 80,
+            "Reliability": 87
+        },
+        "High Painting": {
+            "Cycle": 17,
+            "Cycle_StdDev": 1.6,
+            "Auto Reliability": 75,
+            "Reliability": 85
+        },
+        "Floor Painting": {
+            "Cycle": 14,
+            "Cycle_StdDev": 2.2,
+            "Reliability": 93
+        },
+        "Near Statue": {
+            "Cycle": 20,
+            "Cycle_StdDev": 3,
+            "Auto Reliability": 92,
+            "Reliability": 95
+        },
+        "Far Statue": {
+            "Cycle": 30,
+            "Cycle_StdDev": 5,
+            "Reliability": 95
+        },
+        "Fire System": {
+            "Cycle": 3,
+            "Cycle_StdDev": 0.4,
+            "Reliability": 98
+        },
+        "Chain Pull": {
+            "Cycle": 10,
+            "Cycle_StdDev": 1.3,
+            "Reliability": 84
+        }
+    },
     "AVERAGE": {
         "Low Painting": {
             "Cycle": 15,
@@ -135,6 +181,52 @@ ROBOT_QUALITY = {
             "Cycle": 15,
             "Cycle_StdDev": 3.5,
             "Reliability": 50
+        }
+    },
+    "DEAD": {
+        "Low Painting": {
+            "Cycle": 20,
+            "Cycle_StdDev": 1.2,
+            "Auto Reliability": 0,
+            "Reliability": 0
+        },
+        "Mid Painting": {
+            "Cycle": 24,
+            "Cycle_StdDev": 1.4,
+            "Auto Reliability": 0,
+            "Reliability": 0
+        },
+        "High Painting": {
+            "Cycle": 28,
+            "Cycle_StdDev": 1.6,
+            "Auto Reliability": 0,
+            "Reliability": 0
+        },
+        "Floor Painting": {
+            "Cycle": 15,
+            "Cycle_StdDev": 2.2,
+            "Reliability": 0
+        },
+        "Near Statue": {
+            "Cycle": 32,
+            "Cycle_StdDev": 3,
+            "Auto Reliability": 75,
+            "Reliability": 0
+        },
+        "Far Statue": {
+            "Cycle": 40,
+            "Cycle_StdDev": 5,
+            "Reliability": 0
+        },
+        "Fire System": {
+            "Cycle": 8,
+            "Cycle_StdDev": 2.0,
+            "Reliability": 0
+        },
+        "Chain Pull": {
+            "Cycle": 15,
+            "Cycle_StdDev": 3.5,
+            "Reliability": 0
         }
     }
 }
