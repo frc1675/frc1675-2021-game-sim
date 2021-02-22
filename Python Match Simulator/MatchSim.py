@@ -219,6 +219,10 @@ def check_reliability(robot_type, robot_task):
 
 def generate_robot_data(robot_type, robot_task):
 
+    # If no task is defined cycle time is 0
+    if robot_task == None:
+        return 0
+
     task_cycle_key = robot_dict[robot_type][robot_task]["Cycle"]
     task_cycle_sd_key = robot_dict[robot_type][robot_task]["Cycle_StdDev"]
     task_cycle_time = numpy.random.normal(task_cycle_key, task_cycle_sd_key)
@@ -338,6 +342,11 @@ def decrement_game_object_stock(robot, robot_task):
 
 
 def task_selection(robot, robot_type, time_left):
+
+    # Dead robots are not capable of any task
+    if "DEAD" in robot_type:
+        return None
+
     auto_priority = {
         "Low Painting": robot_dict[robot_type]["Low Painting"]["Auto Priority"],
         "Mid Painting": robot_dict[robot_type]["Mid Painting"]["Auto Priority"],
@@ -434,7 +443,7 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
         decrement_game_object_stock(robot, robot_task)
 
 # check if hitting a sprinkler button is a higher priority than the current task
-    if time_left > ENDGAME_LENGTH:
+    if time_left > ENDGAME_LENGTH and robot_task is not None:
         fire_system_priority = robot_dict[robot_type]["Fire System"]["TeleOp Priority"]
         current_task_priority = robot_dict[robot_type][robot_task]["TeleOp Priority"]
     elif time_left <= ENDGAME_LENGTH and robot_task is not None:
