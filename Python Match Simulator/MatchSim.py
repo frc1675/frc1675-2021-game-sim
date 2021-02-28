@@ -352,8 +352,8 @@ def decrement_game_object_stock(robot, robot_task):
 
 def task_selection(robot, robot_type, time_left):
 
-    # Dead robots are not capable of any task
-    if "DEAD" in robot_type:
+    # NOT FUNCTIONAL robots are not capable of any task
+    if "NOT FUNCTIONAL" in robot_type:
         return None
 
     auto_priority = {
