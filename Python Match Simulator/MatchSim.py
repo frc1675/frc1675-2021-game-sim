@@ -7,6 +7,15 @@ from RobotQuality import *
 from RobotStrategy import *
 
 
+class RobotStrategyStats:
+    def __init__(self):
+        self.wins = 0
+        self.losses = 0
+        self.ties = 0
+        self.score = 0
+        self.ranking_points = 0
+        self.matches = 0
+
 def fire_alarms_initialize():
     # generates random times within the 3 set alarm periods when the alarms will turn
     # randomly picks which alarms will be active during each period
@@ -539,6 +548,75 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
             print("%s Task: %s - Time (%r)" % (robot, robot_task, task_cycle_time))
     return robot_score, robot_task, robot_task_end, alarm_task_end
 
+def update_robot_strategy_stats(robot_type, score, ranking_points, win, tie):
+
+    global robot_strategy_stats
+
+    for strategy in ROBOT_STRATEGY.keys():
+        if strategy in robot_type:
+            robot_strategy_stats[strategy].matches += 1
+            robot_strategy_stats[strategy].score += score
+            robot_strategy_stats[strategy].ranking_points += ranking_points
+            if win:
+                robot_strategy_stats[strategy].wins += 1
+            elif tie:
+                robot_strategy_stats[strategy].ties += 1
+            else:
+                robot_strategy_stats[strategy].losses += 1
+
+def update_average_mode_stats(
+    red1_type, red1_score,
+    red2_type, red2_score,
+    red3_type, red3_score,
+    blue1_type, blue1_score,
+    blue2_type, blue2_score,
+    blue3_type, blue3_score,
+    win_message, red_alliance_rp, blue_alliance_rp):
+
+    global blue_all_wins
+    global red_all_wins
+    global all_ties
+
+    global red1_all_score
+    global red2_all_score
+    global red3_all_score
+    global blue1_all_score
+    global blue2_all_score
+    global blue3_all_score
+
+    global red_all_rp
+    global blue_all_rp
+
+    red_win = False
+    blue_win = False
+    tie = False
+    if win_message == BLUE_WIN_MESSAGE:
+        blue_all_wins += 1
+        blue_win = True
+    elif win_message == RED_WIN_MESSAGE:
+        red_all_wins += 1
+        red_win = True
+    else:
+        all_ties += 1
+        tie = True
+
+    red1_all_score += red1_score
+    red2_all_score += red2_score
+    red3_all_score += red3_score
+    red_all_rp += red_alliance_rp
+
+    blue1_all_score += blue1_score
+    blue2_all_score += blue2_score
+    blue3_all_score += blue3_score
+    blue_all_rp += blue_alliance_rp
+
+    update_robot_strategy_stats(red1_type, red1_score, red_alliance_rp, red_win, tie)
+    update_robot_strategy_stats(red2_type, red2_score, red_alliance_rp, red_win, tie)
+    update_robot_strategy_stats(red3_type, red3_score, red_alliance_rp, red_win, tie)
+    update_robot_strategy_stats(blue1_type, blue1_score, blue_alliance_rp, blue_win, tie)
+    update_robot_strategy_stats(blue2_type, blue2_score, blue_alliance_rp, blue_win, tie)
+    update_robot_strategy_stats(blue3_type, blue3_score, blue_alliance_rp, blue_win, tie)
+
 
 def generate_match_data(r1, r2, r3, b1, b2, b3):
     # Create the six robots
@@ -704,35 +782,14 @@ def generate_match_data(r1, r2, r3, b1, b2, b3):
 
     # Tracks total points and wins
     elif sim_type == "a":
-        global blue_all_wins
-        global red_all_wins
-        global all_ties
-
-        global red1_all_score
-        global red2_all_score
-        global red3_all_score
-        global blue1_all_score
-        global blue2_all_score
-        global blue3_all_score
-
-        global red_all_rp
-        global blue_all_rp
-
-        if win_message == BLUE_WIN_MESSAGE:
-            blue_all_wins += 1
-        elif win_message == RED_WIN_MESSAGE:
-            red_all_wins += 1
-        else:
-            all_ties += 1
-        red1_all_score += red1_total_score
-        red2_all_score += red2_total_score
-        red3_all_score += red3_total_score
-        red_all_rp += red_alliance_rp
-
-        blue1_all_score += blue1_total_score
-        blue2_all_score += blue2_total_score
-        blue3_all_score += blue3_total_score
-        blue_all_rp += blue_alliance_rp
+        update_average_mode_stats(
+            red1_type, red1_total_score,
+            red2_type, red2_total_score,
+            red3_type, red3_total_score,
+            blue1_type, blue1_total_score,
+            blue2_type, blue2_total_score,
+            blue3_type, blue3_total_score,
+            win_message, red_alliance_rp, blue_alliance_rp)
 
 
 def create_randomizer_list(distribution_dict):
@@ -845,6 +902,10 @@ blue2_all_score = 0
 blue3_all_score = 0
 blue_all_rp = 0
 
+robot_strategy_stats = {}
+for strategy in ROBOT_STRATEGY.keys():
+    robot_strategy_stats.update({ strategy: RobotStrategyStats() })
+
 for i in range(sim_reps):
     
     r1_type = get_robot_type(r1_strategy, r1_quality)
@@ -886,3 +947,15 @@ if sim_type == "a":
     print("=====================")
     print("Red Alliance Average RP: %f" % (red_all_rp/sim_reps))
     print("Blue Alliance Average RP: %f" % (blue_all_rp/sim_reps))
+
+    print("=========================================")
+    print("=====AVG RESULTS PER ROBOT STRATEGY =====")
+    print("=========================================")
+    for strategy, stats in robot_strategy_stats.items():
+        print(strategy+":")
+        print("Win rate: %f" % (stats.wins/stats.matches))
+        print("Loss rate: %f" % (stats.losses/stats.matches))
+        print("Tie rate: %f" % (stats.ties/stats.matches))
+        print("Average points: %f" % (stats.score/stats.matches))
+        print("Average RP: %f" % (stats.ranking_points/stats.matches))
+        print("=====================")
