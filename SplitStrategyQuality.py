@@ -37,7 +37,7 @@ ROBOT_STRATEGY = {
 }
 
 ROBOT_QUALITY = {
-    "BEST": {
+    "ELITE": {
         "Low Painting": {
             "Cycle": 12,
             "Cycle_StdDev": 1.2,

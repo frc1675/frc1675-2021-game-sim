@@ -1,5 +1,5 @@
 ROBOT_QUALITY = {
-    "BEST": {
+    "ELITE": {
         "Low Painting": {
             "Cycle": 12,
             "Cycle_StdDev": 1.2,
@@ -45,7 +45,7 @@ ROBOT_QUALITY = {
             "Reliability": 92
         }
     },
-    "GOOD": {
+    "ABOVE AVERAGE": {
         "Low Painting": {
             "Cycle": 13,
             "Cycle_StdDev": 1.2,
@@ -137,7 +137,7 @@ ROBOT_QUALITY = {
             "Reliability": 80
         }
     },
-    "BAD": {
+    "BELOW AVERAGE": {
         "Low Painting": {
             "Cycle": 20,
             "Cycle_StdDev": 1.2,
@@ -183,7 +183,7 @@ ROBOT_QUALITY = {
             "Reliability": 50
         }
     },
-    "DEAD": {
+    "NOT FUNCTIONAL": {
         "Low Painting": {
             "Cycle": 20,
             "Cycle_StdDev": 1.2,
