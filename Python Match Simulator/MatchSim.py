@@ -408,11 +408,20 @@ def task_selection(robot, robot_type, time_left):
         endgame_priority.pop("Chain Pull")
 
     if time_left > TELEOP_LENGTH:
-        task = min(auto_priority, key=auto_priority.get)
+        if min(auto_priority.values()) >= 10:
+            task = min(auto_priority, key=auto_priority.get)
+        else:
+            return None
     elif time_left <= ENDGAME_LENGTH:
-        task = min(endgame_priority, key=endgame_priority.get)
+        if min(endgame_priority.values()) >= 10:
+            task = min(endgame_priority, key=endgame_priority.get)
+        else:
+            return None
     else:
-        task = min(teleop_priority, key=teleop_priority.get)
+        if min(teleop_priority.values()) >= 10:
+            task = min(teleop_priority, key=teleop_priority.get)
+        else:
+            return None
     return task
 
 
