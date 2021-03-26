@@ -509,9 +509,9 @@ def robot_match_increment(robot, robot_type, robot_task, robot_task_end, alarm_t
                 else:
                     robot_score = PAINTING_SCORE_VALUE
                     if robot.startswith("R"):
-                        red_auto_paintings_scored += 1
+                        red_teleop_paintings_scored += 1
                     elif robot.startswith("B"):
-                        blue_auto_paintings_scored += 1
+                        blue_teleop_paintings_scored += 1
             elif not task_success:
                 floor_paintings += 1
         elif robot_task == "Near Statue" or robot_task == "Far Statue":

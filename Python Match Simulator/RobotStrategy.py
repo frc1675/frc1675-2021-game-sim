@@ -205,7 +205,7 @@ ROBOT_STRATEGY = {
             "Endgame Priority": 10
         },
         "Near Statue": {
-            "Auto Priority": 10,
+            "Auto Priority": 1,
             "TeleOp Priority": 10,
             "Endgame Priority": 10
         },
